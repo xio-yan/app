@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>條碼掃描</title>
+
+  <script src="https://unpkg.com/@zxing/browser@latest"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+      color: #222;
+    }
+
+    header {
+      background: #1976d2;
+      color: white;
+      padding: 18px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    main {
+      padding: 18px;
+    }
+
+    video {
+      width: 100%;
+      max-width: 520px;
+      height: 320px;
+      background: black;
+      border-radius: 14px;
+      object-fit: cover;
+      margin-top: 12px;
+    }
+
+    button {
+      font-size: 22px;
+      padding: 14px 26px;
+      margin: 8px;
+      border: none;
+      border-radius: 12px;
+      background: #1976d2;
+      color: white;
+    }
+
+    .stop {
+      background: #777;
+    }
+
+    #result {
+      margin-top: 18px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #0b8043;
+      word-break: break-all;
+    }
+
+    #status {
+      margin-top: 12px;
+      font-size: 18px;
+      color: #555;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  </style>
+</head>
+
+<body>
+  <header>條碼掃描</header>
+
+  <main>
+    <button onclick="startScan()">開始掃描</button>
+    <button class="stop" onclick="stopScan()">停止掃描</button>
+
+    <br>
+
+    <video id="video" autoplay muted playsinline></video>
+
+    <div id="result">尚未掃描</div>
+    <div id="status">請按開始掃描</div>
+  </main>
+
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyVGI5W-h3XQR6NThkGXcNMa8as8tBweCfISjP_beYe0TEiQBgccveqi-Aq10AJDByL/exec";
+
+    let codeReader = null;
+    let controls = null;
+    let lastCode = "";
+    let lock = false;
+
+    async function startScan() {
+      const video = document.getElementById("video");
+      const status = document.getElementById("status");
+      const resultBox = document.getElementById("result");
+
+      status.innerText = "正在啟動相機...";
+      resultBox.innerText = "等待掃描...";
+
+      try {
+        codeReader = new ZXingBrowser.BrowserMultiFormatReader();
+
+        controls = await codeReader.decodeFromVideoDevice(
+          undefined,
+          video,
+          async function(result, error, controls) {
+            if (result && !lock) {
+              const code = result.getText();
+
+              if (code && code !== lastCode) {
+                lock = true;
+                lastCode = code;
+
+                resultBox.innerText = code;
+                status.innerText = "掃描成功，正在送到 Apps Script...";
+
+                await saveToGas(code);
+
+                setTimeout(function() {
+                  lock = false;
+                }, 1500);
+              }
+            }
+          }
+        );
+
+        status.innerText = "相機已啟動，請對準條碼";
+
+      } catch (err) {
+        status.innerText =
+          "相機啟動失敗：\n" +
+          err.name + "\n" +
+          err.message;
+      }
+    }
+
+    function stopScan() {
+      if (controls) {
+        controls.stop();
+        controls = null;
+      }
+
+      document.getElementById("status").innerText = "已停止掃描";
+    }
+
+    function saveToGas(code) {
+      return new Promise(function(resolve) {
+        const callbackName = "gasCallback_" + Date.now();
+
+        window[callbackName] = function(data) {
+          document.getElementById("status").innerText =
+            data.ok
+              ? "已寫入試算表：" + data.code
+              : "寫入失敗：" + data.message;
+
+          delete window[callbackName];
+          script.remove();
+          resolve();
+        };
+
+        const script = document.createElement("script");
+        script.src =
+          GAS_URL +
+          "?action=save" +
+          "&code=" + encodeURIComponent(code) +
+          "&callback=" + callbackName +
+          "&t=" + Date.now();
+
+        document.body.appendChild(script);
+      });
+    }
+  </script>
+</body>
+</html>
