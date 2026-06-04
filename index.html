@@ -3,138 +3,484 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>條碼掃描</title>
+  <title>觀禮相機驗票端</title>
 
   <script src="https://unpkg.com/@zxing/browser@latest"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, "Microsoft JhengHei", sans-serif;
-      background: #f4f6f8;
-      text-align: center;
-      color: #222;
+      background: #eef2f7;
+      color: #0f172a;
     }
 
-    header {
-      background: #1976d2;
-      color: white;
-      padding: 18px;
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    main {
+    .shell {
+      max-width: 760px;
+      margin: 0 auto;
       padding: 18px;
     }
 
-    video {
+    .card {
+      background: white;
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 12px 36px rgba(15, 23, 42, 0.12);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+    }
+
+    input {
       width: 100%;
-      max-width: 520px;
-      height: 320px;
-      background: black;
+      font-size: 22px;
+      padding: 16px;
       border-radius: 14px;
-      object-fit: cover;
-      margin-top: 12px;
+      border: 1px solid #cbd5e1;
+      margin: 8px 0;
     }
 
     button {
       font-size: 22px;
-      padding: 14px 26px;
-      margin: 8px;
+      padding: 14px 22px;
       border: none;
-      border-radius: 12px;
-      background: #1976d2;
+      border-radius: 14px;
       color: white;
-    }
-
-    .stop {
-      background: #777;
-    }
-
-    #result {
-      margin-top: 18px;
-      font-size: 24px;
+      background: #1976d2;
+      margin: 8px 6px 8px 0;
       font-weight: bold;
-      color: #0b8043;
+    }
+
+    button.gray {
+      background: #64748b;
+    }
+
+    button.red {
+      background: #dc2626;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .hint {
+      color: #64748b;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .pill {
+      background: #dcfce7;
+      color: #166534;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    video {
+      width: 100%;
+      height: 360px;
+      background: black;
+      border-radius: 20px;
+      object-fit: cover;
+      margin: 10px 0;
+    }
+
+    .scan-frame {
+      position: relative;
+    }
+
+    .scan-line {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      top: 50%;
+      height: 4px;
+      background: rgba(34, 197, 94, 0.9);
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);
+      border-radius: 99px;
+      pointer-events: none;
+    }
+
+    .result-box {
+      border-radius: 22px;
+      padding: 24px;
+      margin-top: 16px;
+      text-align: center;
+      border: 3px solid transparent;
+    }
+
+    .result-box h2 {
+      font-size: 40px;
+      margin: 0 0 14px;
+    }
+
+    .result-box.idle {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .result-box.loading {
+      background: #eff6ff;
+      border-color: #60a5fa;
+    }
+
+    .result-box.success {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #14532d;
+    }
+
+    .result-box.warning {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #78350f;
+    }
+
+    .result-box.error {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #7f1d1d;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      text-align: left;
+      margin-top: 12px;
+    }
+
+    .info-grid p {
+      margin: 0;
+      background: rgba(255,255,255,0.6);
+      padding: 12px;
+      border-radius: 14px;
+    }
+
+    .info-grid b {
+      display: block;
+      font-size: 14px;
+      opacity: 0.75;
+      margin-bottom: 4px;
+    }
+
+    .info-grid span {
+      font-size: 20px;
+      font-weight: bold;
       word-break: break-all;
     }
 
-    #status {
-      margin-top: 12px;
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .stats div {
+      background: white;
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    .stats span {
+      display: block;
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .stats strong {
+      font-size: 24px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: white;
+      padding: 14px 20px;
+      border-radius: 999px;
       font-size: 18px;
-      color: #555;
-      white-space: pre-wrap;
-      word-break: break-all;
+      z-index: 9999;
+    }
+
+    .toast.error {
+      background: #dc2626;
+    }
+
+    .toast.success {
+      background: #16a34a;
+    }
+
+    @media (max-width: 620px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .header {
+        display: block;
+      }
+
+      video {
+        height: 300px;
+      }
+
+      .result-box h2 {
+        font-size: 32px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <header>條碼掃描</header>
+  <div class="shell">
+    <section id="checkerLogin" class="card">
+      <h1>相機驗票端登入</h1>
+      <p class="hint">此版本給 iPad Chrome 使用相機掃描 QR Code。</p>
 
-  <main>
-    <button onclick="startScan()">開始掃描</button>
-    <button class="stop" onclick="stopScan()">停止掃描</button>
+      <input id="checkerPassword" type="password" placeholder="請輸入驗票密碼">
+      <input id="checkerName" placeholder="驗票人員名稱，例如：入口A">
 
-    <br>
+      <button onclick="loginChecker()">進入驗票端</button>
 
-    <video id="video" autoplay muted playsinline></video>
+      <p class="hint">密碼使用 Apps Script Settings 工作表中的 CHECKER_PASSWORD。</p>
+    </section>
 
-    <div id="result">尚未掃描</div>
-    <div id="status">請按開始掃描</div>
-  </main>
+    <main id="checkerMain" class="hidden">
+      <section class="card">
+        <div class="header">
+          <div>
+            <h1>觀禮相機驗票端</h1>
+            <p class="hint">使用 iPad Chrome 相機掃描 QR Code。</p>
+          </div>
+          <div class="pill">即時驗票中</div>
+        </div>
+
+        <button onclick="startScan()">開啟相機</button>
+        <button class="gray" onclick="stopScan()">停止相機</button>
+        <button class="red" onclick="logoutChecker()">登出</button>
+
+        <div class="scan-frame">
+          <video id="video" autoplay muted playsinline></video>
+          <div class="scan-line"></div>
+        </div>
+
+        <input id="manualInput" autocomplete="off" placeholder="也可手動輸入 QR 內容後按 Enter">
+      </section>
+
+      <section id="resultBox" class="result-box idle">
+        <h2>等待掃描</h2>
+        <p>請按「開啟相機」，允許相機權限後，將 QR Code 對準畫面。</p>
+      </section>
+
+      <section class="stats">
+        <div>
+          <span>總入場</span>
+          <strong id="cTotal">0 / 0</strong>
+        </div>
+        <div>
+          <span>第一梯次</span>
+          <strong id="cT1">0 / 0</strong>
+        </div>
+        <div>
+          <span>第二梯次</span>
+          <strong id="cT2">0 / 0</strong>
+        </div>
+        <div>
+          <span>現場候位</span>
+          <strong id="cWAIT">0 / 0</strong>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyVGI5W-h3XQR6NThkGXcNMa8as8tBweCfISjP_beYe0TEiQBgccveqi-Aq10AJDByL/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwM648_Zc1eKHjlwJYRwwgKFEskn6_1D9ynT32RVAFKCArnGxXOFKoD-S-xEU-Pv-Oj/exec";
+
+    let CHECKER_NAME = localStorage.getItem("CHECKER_NAME") || "";
+    let CHECKER_TOKEN = sessionStorage.getItem("CHECKER_TOKEN") || "";
 
     let codeReader = null;
     let controls = null;
+    let scanLock = false;
     let lastCode = "";
-    let lock = false;
+    let lastScanTime = 0;
+    let statsTimer = null;
+
+    window.addEventListener("load", function() {
+      document.getElementById("checkerName").value = CHECKER_NAME;
+
+      const manualInput = document.getElementById("manualInput");
+
+      manualInput.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+
+          const code = manualInput.value.trim();
+          manualInput.value = "";
+
+          if (code) {
+            verify(code);
+          }
+        }
+      });
+    });
+
+    function loginChecker() {
+      const password = document.getElementById("checkerPassword").value.trim();
+      const name = document.getElementById("checkerName").value.trim() || "GitHub 相機驗票端";
+
+      if (!password) {
+        toast("請輸入驗票密碼", "error");
+        return;
+      }
+
+      toast("登入檢查中...");
+
+      gasCall({
+        api: "checkerLogin",
+        password: password,
+        checkerName: name
+      }).then(function(res) {
+        if (res.success) {
+          CHECKER_NAME = name;
+          CHECKER_TOKEN = res.token;
+
+          localStorage.setItem("CHECKER_NAME", name);
+          sessionStorage.setItem("CHECKER_TOKEN", res.token);
+
+          document.getElementById("checkerLogin").classList.add("hidden");
+          document.getElementById("checkerMain").classList.remove("hidden");
+
+          toast("登入成功", "success");
+
+          if (res.stats) {
+            renderCheckerStats(res.stats);
+          }
+
+          refreshCheckerStats();
+
+          if (statsTimer) clearInterval(statsTimer);
+          statsTimer = setInterval(refreshCheckerStats, 3000);
+
+        } else {
+          toast(res.message || "驗票密碼錯誤", "error");
+        }
+      }).catch(function(err) {
+        toast(err.message || String(err), "error");
+      });
+    }
+
+    function logoutChecker() {
+      stopScan();
+
+      CHECKER_TOKEN = "";
+      sessionStorage.removeItem("CHECKER_TOKEN");
+
+      document.getElementById("checkerLogin").classList.remove("hidden");
+      document.getElementById("checkerMain").classList.add("hidden");
+
+      if (statsTimer) {
+        clearInterval(statsTimer);
+        statsTimer = null;
+      }
+
+      toast("已登出");
+    }
 
     async function startScan() {
       const video = document.getElementById("video");
-      const status = document.getElementById("status");
-      const resultBox = document.getElementById("result");
+      const box = document.getElementById("resultBox");
 
-      status.innerText = "正在啟動相機...";
-      resultBox.innerText = "等待掃描...";
+      box.className = "result-box loading";
+      box.innerHTML = `
+        <h2>相機啟動中...</h2>
+        <p>請允許相機權限。</p>
+      `;
 
       try {
-        codeReader = new ZXingBrowser.BrowserMultiFormatReader();
+        if (controls) {
+          controls.stop();
+          controls = null;
+        }
 
-        controls = await codeReader.decodeFromVideoDevice(
-          undefined,
+        codeReader = new ZXingBrowser.BrowserQRCodeReader();
+
+        const constraints = {
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
+        };
+
+        controls = await codeReader.decodeFromConstraints(
+          constraints,
           video,
-          async function(result, error, controls) {
-            if (result && !lock) {
-              const code = result.getText();
+          function(result) {
+            if (!result) return;
+            if (scanLock) return;
 
-              if (code && code !== lastCode) {
-                lock = true;
-                lastCode = code;
+            const code = result.getText();
+            const now = Date.now();
 
-                resultBox.innerText = code;
-                status.innerText = "掃描成功，正在送到 Apps Script...";
+            if (!code) return;
 
-                await saveToGas(code);
-
-                setTimeout(function() {
-                  lock = false;
-                }, 1500);
-              }
+            if (code === lastCode && now - lastScanTime < 2500) {
+              return;
             }
+
+            lastCode = code;
+            lastScanTime = now;
+            scanLock = true;
+
+            verify(code);
+
+            setTimeout(function() {
+              scanLock = false;
+            }, 2200);
           }
         );
 
-        status.innerText = "相機已啟動，請對準條碼";
+        box.className = "result-box idle";
+        box.innerHTML = `
+          <h2>等待掃描</h2>
+          <p>相機已啟動，請將 QR Code 對準畫面。</p>
+        `;
 
       } catch (err) {
-        status.innerText =
-          "相機啟動失敗：\n" +
-          err.name + "\n" +
-          err.message;
+        box.className = "result-box error";
+        box.innerHTML = `
+          <h2>相機啟動失敗</h2>
+          <p>${esc(err.name || "")}</p>
+          <p>${esc(err.message || err)}</p>
+        `;
       }
     }
 
@@ -144,34 +490,265 @@
         controls = null;
       }
 
-      document.getElementById("status").innerText = "已停止掃描";
+      const box = document.getElementById("resultBox");
+
+      if (box) {
+        box.className = "result-box idle";
+        box.innerHTML = `
+          <h2>相機已停止</h2>
+          <p>需要驗票時請再按「開啟相機」。</p>
+        `;
+      }
     }
 
-    function saveToGas(code) {
-      return new Promise(function(resolve) {
-        const callbackName = "gasCallback_" + Date.now();
+    function verify(code) {
+      const box = document.getElementById("resultBox");
 
-        window[callbackName] = function(data) {
-          document.getElementById("status").innerText =
-            data.ok
-              ? "已寫入試算表：" + data.code
-              : "寫入失敗：" + data.message;
+      box.className = "result-box loading";
+      box.innerHTML = `
+        <h2>驗票中...</h2>
+        <p>${esc(code)}</p>
+      `;
 
-          delete window[callbackName];
-          script.remove();
-          resolve();
-        };
+      gasCall({
+        api: "verifyTicket",
+        token: CHECKER_TOKEN,
+        code: code
+      }).then(function(res) {
+        renderVerifyResult(res);
+
+        if (res.stats) {
+          renderCheckerStats(res.stats);
+        }
+      }).catch(function(err) {
+        box.className = "result-box error";
+        box.innerHTML = `
+          <h2>驗票失敗</h2>
+          <p>${esc(err.message || err || "系統發生錯誤")}</p>
+        `;
+      });
+    }
+
+    function renderVerifyResult(res) {
+      const box = document.getElementById("resultBox");
+      const t = res.ticket || {};
+      const isWaitlist = t.isWaitlist || t.batch === "WAIT" || t.batchName === "現場候位";
+
+      let cls = "error";
+
+      if (res.result === "SUCCESS") cls = "success";
+      if (res.result === "DUPLICATE") cls = "warning";
+      if (res.result === "VOID") cls = "error";
+      if (res.result === "AUTH_EXPIRED") cls = "error";
+
+      box.className = "result-box " + cls;
+
+      if (res.result === "AUTH_EXPIRED") {
+        box.innerHTML = `
+          <h2>登入已過期</h2>
+          <p>${esc(res.message || "請重新登入")}</p>
+        `;
+        return;
+      }
+
+      if (res.result === "SUCCESS" && isWaitlist) {
+        box.innerHTML = `
+          <h2>現場候位驗票成功</h2>
+          <div class="info-grid">
+            <p><b>票券類型</b><span>現場候位</span></p>
+            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
+            <p><b>入場時間</b><span>${esc(t.checkedInAt)}</span></p>
+          </div>
+        `;
+        return;
+      }
+
+      if (res.result === "DUPLICATE" && isWaitlist) {
+        box.innerHTML = `
+          <h2>現場候位票已驗過</h2>
+          <div class="info-grid">
+            <p><b>票券類型</b><span>現場候位</span></p>
+            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
+            <p><b>原入場時間</b><span>${esc(t.checkedInAt || res.checkedInAt)}</span></p>
+          </div>
+        `;
+        return;
+      }
+
+      if (res.result === "VOID" && isWaitlist) {
+        box.innerHTML = `
+          <h2>現場候位票已作廢</h2>
+          <p>${esc(res.message)}</p>
+          <div class="info-grid">
+            <p><b>票券類型</b><span>現場候位</span></p>
+            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
+          </div>
+        `;
+        return;
+      }
+
+      if (res.result === "SUCCESS") {
+        box.innerHTML = `
+          <h2>驗票成功</h2>
+          <div class="info-grid">
+            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
+            <p><b>梯次</b><span>${esc(t.batchName)}</span></p>
+            <p><b>姓名</b><span>${esc(t.studentName)}</span></p>
+            <p><b>學系</b><span>${esc(t.department)}</span></p>
+            <p><b>班級</b><span>${esc(t.className)}</span></p>
+            <p><b>學號</b><span>${esc(t.studentId)}</span></p>
+            <p><b>家長票</b><span>第 ${esc(t.guestNo)} 位</span></p>
+            <p><b>入場時間</b><span>${esc(t.checkedInAt)}</span></p>
+          </div>
+        `;
+        return;
+      }
+
+      if (res.result === "DUPLICATE") {
+        box.innerHTML = `
+          <h2>此票已驗過</h2>
+          <div class="info-grid">
+            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
+            <p><b>梯次</b><span>${esc(t.batchName)}</span></p>
+            <p><b>姓名</b><span>${esc(t.studentName)}</span></p>
+            <p><b>學號</b><span>${esc(t.studentId)}</span></p>
+            <p><b>原入場時間</b><span>${esc(t.checkedInAt || res.checkedInAt)}</span></p>
+          </div>
+        `;
+        return;
+      }
+
+      if (res.result === "VOID") {
+        box.innerHTML = `
+          <h2>票券已作廢</h2>
+          <p>${esc(res.message)}</p>
+          <div class="info-grid">
+            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
+            <p><b>姓名</b><span>${esc(t.studentName)}</span></p>
+            <p><b>學號</b><span>${esc(t.studentId)}</span></p>
+          </div>
+        `;
+        return;
+      }
+
+      box.innerHTML = `
+        <h2>無效票券</h2>
+        <p>${esc(res.message || "無效票券")}</p>
+        <p>原始內容：${esc(res.rawInput || "")}</p>
+      `;
+    }
+
+    function refreshCheckerStats() {
+      if (!CHECKER_TOKEN) return;
+
+      gasCall({
+        api: "checkerStats",
+        token: CHECKER_TOKEN
+      }).then(function(res) {
+        if (res.success && res.stats) {
+          renderCheckerStats(res.stats);
+        }
+      });
+    }
+
+    function renderCheckerStats(stats) {
+      if (!stats) return;
+
+      const total = stats.total || { checkedIn: 0, tickets: 0 };
+      const t1 = stats.T1 || { checkedIn: 0, tickets: 0 };
+      const t2 = stats.T2 || { checkedIn: 0, tickets: 0 };
+      const wait = stats.WAIT || { checkedIn: 0, tickets: 0 };
+
+      document.getElementById("cTotal").textContent =
+        `${total.checkedIn} / ${total.tickets}`;
+
+      document.getElementById("cT1").textContent =
+        `${t1.checkedIn} / ${t1.tickets}`;
+
+      document.getElementById("cT2").textContent =
+        `${t2.checkedIn} / ${t2.tickets}`;
+
+      document.getElementById("cWAIT").textContent =
+        `${wait.checkedIn} / ${wait.tickets}`;
+    }
+
+    function gasCall(params) {
+      return new Promise(function(resolve, reject) {
+        const callbackName =
+          "gasCallback_" +
+          Date.now() +
+          "_" +
+          Math.floor(Math.random() * 100000);
+
+        params = params || {};
+        params.callback = callbackName;
+        params.t = Date.now();
+
+        const query = Object.keys(params)
+          .map(function(key) {
+            return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
+          })
+          .join("&");
 
         const script = document.createElement("script");
-        script.src =
-          GAS_URL +
-          "?action=save" +
-          "&code=" + encodeURIComponent(code) +
-          "&callback=" + callbackName +
-          "&t=" + Date.now();
+        const timer = setTimeout(function() {
+          cleanup();
+          reject(new Error("連線逾時，請檢查網路或 Apps Script 部署權限"));
+        }, 15000);
 
+        window[callbackName] = function(data) {
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = function() {
+          cleanup();
+          reject(new Error("無法連線到 Apps Script"));
+        };
+
+        script.src = GAS_URL + "?" + query;
         document.body.appendChild(script);
+
+        function cleanup() {
+          clearTimeout(timer);
+
+          if (window[callbackName]) {
+            delete window[callbackName];
+          }
+
+          if (script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
+        }
       });
+    }
+
+    function esc(value) {
+      if (value === null || value === undefined) return "";
+
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function toast(message, type) {
+      const old = document.querySelector(".toast");
+
+      if (old) {
+        old.remove();
+      }
+
+      const div = document.createElement("div");
+      div.className = "toast " + (type || "info");
+      div.textContent = message;
+      document.body.appendChild(div);
+
+      setTimeout(function() {
+        div.remove();
+      }, 3000);
     }
   </script>
 </body>
