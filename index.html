@@ -367,10 +367,80 @@
         height: 44vh;
       }
     }
+    
+    body.scanning-mode .card:first-child,
+body.scanning-mode .header,
+body.scanning-mode #manualInput {
+  display: none !important;
+}
+
+body.scanning-mode .card {
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+body.scanning-mode .btn-row {
+  grid-template-columns: 1fr;
+  margin-top: 0;
+}
+
+body.scanning-mode .btn-row button:not(.gray) {
+  display: none !important;
+}
+
+body.scanning-mode .btn-row button.gray {
+  background: #dc2626;
+  font-size: 20px;
+}
+
+body.scanning-mode video {
+  height: 52vh;
+  min-height: 300px;
+}
+
+body.scanning-mode .stats div:not(:first-child) {
+  display: none;
+}
+
+body.scanning-mode .stats {
+  grid-template-columns: 1fr;
+  position: static;
+  padding: 0;
+  margin-top: 10px;
+}
+
+body.scanning-mode .stats div {
+  padding: 16px;
+}
+
+body.scanning-mode .stats span {
+  font-size: 16px;
+}
+
+body.scanning-mode .stats strong {
+  font-size: 32px;
+}
+
+.scan-notice {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  background: #16a34a;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 10000;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
+  pointer-events: none;
+}
   </style>
 </head>
 
 <body>
+  <div id="scanNotice" class="scan-notice hidden">已掃描到 QR，驗票中...</div>
   <div class="shell">
     <section id="checkerLogin" class="card">
       <h1>相機驗票端登入</h1>
@@ -578,19 +648,22 @@
             lastScanTime = now;
             scanLock = true;
 
-            verify(code);
+showScanNotice();
+verify(code);
 
-            setTimeout(function() {
-              scanLock = false;
-            }, 2200);
+setTimeout(function() {
+  scanLock = false;
+}, 500);
           }
         );
 
-        box.className = "result-box idle";
-        box.innerHTML = `
-          <h2>等待掃描</h2>
-          <p>相機已啟動，請將 QR Code 對準畫面。</p>
-        `;
+        document.body.classList.add("scanning-mode");
+
+box.className = "result-box idle";
+box.innerHTML = `
+  <h2>等待掃描</h2>
+  <p>請將 QR Code 對準掃描框。</p>
+`;
 
       } catch (err) {
         box.className = "result-box error";
@@ -603,6 +676,7 @@
     }
 
     function stopScan() {
+      document.body.classList.remove("scanning-mode");
       if (controls) {
         controls.stop();
         controls = null;
@@ -851,6 +925,22 @@
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
     }
+    
+    function showScanNotice() {
+  const notice = document.getElementById("scanNotice");
+
+  if (!notice) return;
+
+  notice.classList.remove("hidden");
+
+  if (navigator.vibrate) {
+    navigator.vibrate(80);
+  }
+
+  setTimeout(function() {
+    notice.classList.add("hidden");
+  }, 650);
+}
 
     function toast(message, type) {
       const old = document.querySelector(".toast");
