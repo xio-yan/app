@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>觀禮相機驗票端</title>
+  <title>觀禮驗票端</title>
 
   <script src="https://unpkg.com/@zxing/browser@latest"></script>
 
@@ -18,189 +18,225 @@
       width: 100%;
       min-height: 100%;
       font-family: Arial, "Microsoft JhengHei", sans-serif;
-      background: #eef2f7;
-      color: #0f172a;
+      background: linear-gradient(180deg, #f7f4ef, #eef3f6);
+      color: #334155;
     }
 
     body {
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    .shell {
+    .page {
       width: 100%;
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 14px;
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 520px;
     }
 
     .card {
-      background: white;
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
-      margin-bottom: 14px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 26px;
+      padding: 22px;
+      box-shadow: 0 14px 36px rgba(100, 116, 139, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.8);
     }
 
     h1 {
       margin: 0 0 8px;
-      font-size: 26px;
-      line-height: 1.25;
+      font-size: 28px;
+      color: #475569;
+      text-align: center;
+    }
+
+    .sub {
+      margin: 0 0 20px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 15px;
+      line-height: 1.6;
     }
 
     input {
       width: 100%;
-      font-size: 16px;
+      border: 1px solid #dbe3ea;
+      background: #ffffff;
+      border-radius: 18px;
       padding: 16px;
-      border-radius: 14px;
-      border: 1px solid #cbd5e1;
-      margin: 8px 0;
+      font-size: 16px;
+      margin-bottom: 12px;
       outline: none;
-      background: white;
+      color: #334155;
+    }
+
+    input:focus {
+      border-color: #a7c7d9;
+      box-shadow: 0 0 0 4px rgba(167, 199, 217, 0.25);
     }
 
     button {
       width: 100%;
-      font-size: 18px;
-      padding: 15px 14px;
       border: none;
-      border-radius: 14px;
-      color: white;
-      background: #1976d2;
+      border-radius: 18px;
+      padding: 16px;
+      font-size: 19px;
       font-weight: bold;
+      color: white;
+      background: #88aebf;
       cursor: pointer;
+      box-shadow: 0 8px 18px rgba(136, 174, 191, 0.35);
     }
 
-    button.gray {
-      background: #64748b;
+    button:active {
+      transform: scale(0.98);
     }
 
-    button.red {
-      background: #dc2626;
-    }
-
-    button.full {
-      grid-column: 1 / -1;
-    }
-
-    .btn-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
+    button.stop {
+      background: #d99a8f;
+      box-shadow: 0 8px 18px rgba(217, 154, 143, 0.35);
     }
 
     .hidden {
       display: none !important;
     }
 
-    .hint {
-      color: #64748b;
-      font-size: 14px;
-      line-height: 1.6;
-      margin: 6px 0;
+    .scanner-page {
+      width: 100%;
+      min-height: 100vh;
+      padding: 12px;
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
+    .scanner-wrap {
+      width: 100%;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .top-count {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 24px;
+      padding: 16px;
+      text-align: center;
       margin-bottom: 12px;
+      box-shadow: 0 10px 24px rgba(100, 116, 139, 0.12);
     }
 
-    .pill {
-      background: #dcfce7;
-      color: #166534;
-      padding: 7px 12px;
-      border-radius: 999px;
-      font-weight: bold;
-      white-space: nowrap;
-      font-size: 14px;
+    .top-count span {
+      display: block;
+      color: #94a3b8;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .top-count strong {
+      font-size: 34px;
+      color: #475569;
+    }
+
+    .scan-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 26px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 12px 30px rgba(100, 116, 139, 0.14);
     }
 
     .scan-frame {
       position: relative;
       overflow: hidden;
-      border-radius: 18px;
-      background: black;
-      margin: 12px 0;
+      border-radius: 22px;
+      background: #111827;
     }
 
     video {
       display: block;
       width: 100%;
-      height: min(58vh, 430px);
-      min-height: 280px;
-      background: black;
+      height: 54vh;
+      min-height: 320px;
+      max-height: 520px;
       object-fit: cover;
+      background: #111827;
+    }
+
+    .scan-box {
+      position: absolute;
+      inset: 15%;
+      border: 3px solid rgba(255, 255, 255, 0.55);
+      border-radius: 24px;
+      pointer-events: none;
     }
 
     .scan-line {
       position: absolute;
-      left: 9%;
-      right: 9%;
+      left: 13%;
+      right: 13%;
       top: 50%;
       height: 4px;
-      background: rgba(34, 197, 94, 0.95);
-      box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);
       border-radius: 99px;
+      background: rgba(167, 220, 190, 0.95);
+      box-shadow: 0 0 18px rgba(167, 220, 190, 0.9);
       pointer-events: none;
     }
 
-    .scan-corner {
-      position: absolute;
-      inset: 12%;
-      border: 3px solid rgba(255, 255, 255, 0.45);
-      border-radius: 18px;
-      pointer-events: none;
+    .main-button {
+      margin-bottom: 12px;
     }
 
     .result-box {
-      border-radius: 20px;
-      padding: 20px;
-      margin-top: 14px;
+      border-radius: 26px;
+      padding: 22px;
       text-align: center;
       border: 3px solid transparent;
-      word-break: break-word;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 10px 24px rgba(100, 116, 139, 0.12);
+      min-height: 150px;
     }
 
     .result-box h2 {
+      margin: 0 0 12px;
       font-size: 34px;
       line-height: 1.2;
-      margin: 0 0 12px;
     }
 
     .result-box p {
       margin: 8px 0;
       line-height: 1.6;
+      font-size: 16px;
     }
 
     .result-box.idle {
-      background: #f8fafc;
-      border-color: #cbd5e1;
+      border-color: #dbe3ea;
+      color: #64748b;
     }
 
     .result-box.loading {
-      background: #eff6ff;
-      border-color: #60a5fa;
+      background: #eef6fb;
+      border-color: #a7c7d9;
+      color: #3f6072;
     }
 
     .result-box.success {
-      background: #dcfce7;
-      border-color: #22c55e;
-      color: #14532d;
+      background: #edf8f0;
+      border-color: #9fd3b0;
+      color: #2f6b45;
     }
 
     .result-box.warning {
-      background: #fef3c7;
-      border-color: #f59e0b;
-      color: #78350f;
+      background: #fff7e6;
+      border-color: #e9c46a;
+      color: #8a5a00;
     }
 
     .result-box.error {
-      background: #fee2e2;
-      border-color: #ef4444;
-      color: #7f1d1d;
+      background: #fff0ef;
+      border-color: #e9a19a;
+      color: #8f3f38;
     }
 
     .info-grid {
@@ -213,177 +249,89 @@
 
     .info-grid p {
       margin: 0;
-      background: rgba(255,255,255,0.65);
+      background: rgba(255,255,255,0.72);
       padding: 12px;
-      border-radius: 14px;
+      border-radius: 16px;
     }
 
     .info-grid b {
       display: block;
       font-size: 13px;
-      opacity: 0.75;
+      opacity: 0.68;
       margin-bottom: 4px;
     }
 
     .info-grid span {
+      display: block;
       font-size: 18px;
       font-weight: bold;
       word-break: break-all;
     }
 
-    .stats {
-      position: sticky;
-      bottom: 0;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
-      background: rgba(238, 242, 247, 0.92);
-      backdrop-filter: blur(10px);
-      z-index: 50;
-    }
-
-    .stats div {
-      background: white;
-      border-radius: 16px;
-      padding: 12px 8px;
-      text-align: center;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-    }
-
-    .stats span {
-      display: block;
-      color: #64748b;
-      font-size: 13px;
-      margin-bottom: 5px;
-    }
-
-    .stats strong {
-      font-size: 20px;
-    }
-
-    .toast,
     .scan-notice {
       position: fixed;
+      top: calc(14px + env(safe-area-inset-top));
       left: 50%;
       transform: translateX(-50%);
+      background: #8fbfa2;
       color: white;
+      padding: 12px 20px;
       border-radius: 999px;
-      z-index: 9999;
-      max-width: calc(100% - 28px);
-      text-align: center;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
-    }
-
-    .toast {
-      bottom: calc(20px + env(safe-area-inset-bottom));
-      background: #0f172a;
-      padding: 13px 18px;
-      font-size: 16px;
-    }
-
-    .toast.error {
-      background: #dc2626;
-    }
-
-    .toast.success {
-      background: #16a34a;
-    }
-
-    .scan-notice {
-      top: calc(12px + env(safe-area-inset-top));
-      background: #16a34a;
-      padding: 12px 18px;
-      font-size: 18px;
       font-weight: bold;
+      font-size: 17px;
+      z-index: 9999;
+      box-shadow: 0 10px 24px rgba(100, 116, 139, 0.25);
       pointer-events: none;
     }
 
-    body.scanning-mode .header,
-    body.scanning-mode #manualInput {
-      display: none !important;
-    }
-
-    body.scanning-mode .card {
-      padding: 10px;
-      margin-bottom: 10px;
-      box-shadow: none;
-      background: transparent;
-    }
-
-    body.scanning-mode .btn-row {
-      grid-template-columns: 1fr;
-      margin-top: 0;
-    }
-
-    body.scanning-mode .btn-row button:not(.gray) {
-      display: none !important;
-    }
-
-    body.scanning-mode .btn-row button.gray {
-      background: #dc2626;
-      font-size: 20px;
-    }
-
-    body.scanning-mode video {
-      height: 52vh;
-      min-height: 300px;
-    }
-
-    body.scanning-mode .stats div:not(:first-child) {
-      display: none;
-    }
-
-    body.scanning-mode .stats {
-      grid-template-columns: 1fr;
-      position: static;
-      padding: 0;
-      margin-top: 10px;
-      background: transparent;
-    }
-
-    body.scanning-mode .stats div {
-      padding: 16px;
-    }
-
-    body.scanning-mode .stats span {
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      background: #475569;
+      color: white;
+      padding: 13px 18px;
+      border-radius: 999px;
       font-size: 16px;
+      z-index: 9999;
+      max-width: calc(100% - 28px);
+      text-align: center;
+      box-shadow: 0 8px 22px rgba(100, 116, 139, 0.25);
     }
 
-    body.scanning-mode .stats strong {
-      font-size: 32px;
+    .toast.error {
+      background: #d26f65;
     }
 
-    @media (max-width: 620px) {
-      .shell {
-        padding: 10px;
+    .toast.success {
+      background: #7ab792;
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        padding: 14px;
       }
 
       .card {
-        border-radius: 18px;
-        padding: 16px;
+        padding: 20px;
       }
 
       h1 {
-        font-size: 24px;
+        font-size: 26px;
       }
 
-      .header {
-        display: block;
+      .scanner-page {
+        padding: 10px;
       }
 
-      .pill {
-        display: inline-block;
-        margin-top: 8px;
-      }
-
-      .btn-row {
-        grid-template-columns: 1fr;
+      .top-count strong {
+        font-size: 32px;
       }
 
       video {
-        height: 48vh;
-        min-height: 260px;
+        height: 50vh;
+        min-height: 300px;
       }
 
       .result-box {
@@ -398,8 +346,23 @@
         grid-template-columns: 1fr;
       }
 
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
+      .info-grid span {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      video {
+        height: 46vh;
+        min-height: 270px;
+      }
+
+      .result-box h2 {
+        font-size: 27px;
+      }
+
+      .top-count strong {
+        font-size: 30px;
       }
     }
   </style>
@@ -408,71 +371,45 @@
 <body>
   <div id="scanNotice" class="scan-notice hidden">已掃描到 QR，驗票中...</div>
 
-  <div class="shell">
-    <section id="checkerLogin" class="card">
-      <h1>相機驗票端登入</h1>
-      <p class="hint">此版本給 iPad / 手機 Chrome 使用相機掃描 QR Code。</p>
+  <section id="loginPage" class="page">
+    <div class="app">
+      <div class="card">
+        <h1>觀禮驗票端</h1>
+        <p class="sub">請登入後開始掃描 QR Code</p>
 
-      <input id="checkerPassword" type="password" placeholder="請輸入驗票密碼">
-      <input id="checkerName" placeholder="驗票人員名稱，例如：入口A">
+        <input id="checkerPassword" type="password" placeholder="請輸入驗票密碼">
+        <input id="checkerName" placeholder="驗票人員名稱，例如：入口A">
 
-      <div class="btn-row">
-        <button class="full" onclick="loginChecker()">進入驗票端</button>
+        <button onclick="loginChecker()">登入驗票端</button>
       </div>
+    </div>
+  </section>
 
-      <p class="hint">密碼使用 Apps Script Settings 工作表中的 CHECKER_PASSWORD。</p>
-    </section>
+  <main id="scannerPage" class="scanner-page hidden">
+    <div class="scanner-wrap">
 
-    <main id="checkerMain" class="hidden">
-      <section class="card">
-        <div class="header">
-          <div>
-            <h1>觀禮相機驗票端</h1>
-            <p class="hint">使用 iPad / 手機相機掃描 QR Code。</p>
-          </div>
-          <div class="pill">即時驗票中</div>
-        </div>
+      <section class="top-count">
+        <span>總入場人數</span>
+        <strong id="cTotal">0 / 0</strong>
+      </section>
 
-        <div class="btn-row">
-          <button onclick="startScan()">開啟相機</button>
-          <button class="gray" onclick="stopScan()">結束掃碼</button>
-          <button class="red full" onclick="logoutChecker()">登出</button>
-        </div>
+      <button id="scanToggleBtn" class="main-button" onclick="toggleScan()">開始掃碼</button>
 
+      <section class="scan-card">
         <div class="scan-frame">
           <video id="video" autoplay muted playsinline></video>
-          <div class="scan-corner"></div>
+          <div class="scan-box"></div>
           <div class="scan-line"></div>
         </div>
-
-        <input id="manualInput" autocomplete="off" placeholder="也可手動輸入 QR 內容後按 Enter">
       </section>
 
       <section id="resultBox" class="result-box idle">
-        <h2>等待掃描</h2>
-        <p>請按「開啟相機」，允許相機權限後，將 QR Code 對準畫面。</p>
+        <h2>尚未開始</h2>
+        <p>請按「開始掃碼」後，將 QR Code 對準掃描框。</p>
       </section>
 
-      <section class="stats">
-        <div>
-          <span>總入場</span>
-          <strong id="cTotal">0 / 0</strong>
-        </div>
-        <div>
-          <span>第一梯次</span>
-          <strong id="cT1">0 / 0</strong>
-        </div>
-        <div>
-          <span>第二梯次</span>
-          <strong id="cT2">0 / 0</strong>
-        </div>
-        <div>
-          <span>現場候位</span>
-          <strong id="cWAIT">0 / 0</strong>
-        </div>
-      </section>
-    </main>
-  </div>
+    </div>
+  </main>
 
   <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwM648_Zc1eKHjlwJYRwwgKFEskn6_1D9ynT32RVAFKCArnGxXOFKoD-S-xEU-Pv-Oj/exec";
@@ -482,6 +419,7 @@
 
     let codeReader = null;
     let controls = null;
+    let isScanning = false;
     let scanLock = false;
     let lastCode = "";
     let lastScanTime = 0;
@@ -489,26 +427,11 @@
 
     window.addEventListener("load", function() {
       document.getElementById("checkerName").value = CHECKER_NAME;
-
-      const manualInput = document.getElementById("manualInput");
-
-      manualInput.addEventListener("keydown", function(e) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-
-          const code = manualInput.value.trim();
-          manualInput.value = "";
-
-          if (code) {
-            verify(code);
-          }
-        }
-      });
     });
 
     function loginChecker() {
       const password = document.getElementById("checkerPassword").value.trim();
-      const name = document.getElementById("checkerName").value.trim() || "GitHub 相機驗票端";
+      const name = document.getElementById("checkerName").value.trim() || "相機驗票端";
 
       if (!password) {
         toast("請輸入驗票密碼", "error");
@@ -529,8 +452,8 @@
           localStorage.setItem("CHECKER_NAME", name);
           sessionStorage.setItem("CHECKER_TOKEN", res.token);
 
-          document.getElementById("checkerLogin").classList.add("hidden");
-          document.getElementById("checkerMain").classList.remove("hidden");
+          document.getElementById("loginPage").classList.add("hidden");
+          document.getElementById("scannerPage").classList.remove("hidden");
 
           toast("登入成功", "success");
 
@@ -551,30 +474,22 @@
       });
     }
 
-    function logoutChecker() {
-      stopScan();
-
-      CHECKER_TOKEN = "";
-      sessionStorage.removeItem("CHECKER_TOKEN");
-
-      document.getElementById("checkerLogin").classList.remove("hidden");
-      document.getElementById("checkerMain").classList.add("hidden");
-
-      if (statsTimer) {
-        clearInterval(statsTimer);
-        statsTimer = null;
+    function toggleScan() {
+      if (isScanning) {
+        stopScan();
+      } else {
+        startScan();
       }
-
-      toast("已登出");
     }
 
     async function startScan() {
       const video = document.getElementById("video");
       const box = document.getElementById("resultBox");
+      const btn = document.getElementById("scanToggleBtn");
 
       box.className = "result-box loading";
       box.innerHTML = `
-        <h2>相機啟動中...</h2>
+        <h2>相機啟動中</h2>
         <p>請允許相機權限。</p>
       `;
 
@@ -607,7 +522,7 @@
 
             if (!code) return;
 
-            if (code === lastCode && now - lastScanTime < 1800) {
+            if (code === lastCode && now - lastScanTime < 1600) {
               return;
             }
 
@@ -620,11 +535,13 @@
 
             setTimeout(function() {
               scanLock = false;
-            }, 500);
+            }, 450);
           }
         );
 
-        document.body.classList.add("scanning-mode");
+        isScanning = true;
+        btn.textContent = "結束掃碼";
+        btn.classList.add("stop");
 
         box.className = "result-box idle";
         box.innerHTML = `
@@ -633,7 +550,9 @@
         `;
 
       } catch (err) {
-        document.body.classList.remove("scanning-mode");
+        isScanning = false;
+        btn.textContent = "開始掃碼";
+        btn.classList.remove("stop");
 
         box.className = "result-box error";
         box.innerHTML = `
@@ -645,22 +564,25 @@
     }
 
     function stopScan() {
-      document.body.classList.remove("scanning-mode");
+      const box = document.getElementById("resultBox");
+      const btn = document.getElementById("scanToggleBtn");
 
       if (controls) {
         controls.stop();
         controls = null;
       }
 
-      const box = document.getElementById("resultBox");
+      isScanning = false;
+      scanLock = false;
 
-      if (box) {
-        box.className = "result-box idle";
-        box.innerHTML = `
-          <h2>相機已停止</h2>
-          <p>需要驗票時請再按「開啟相機」。</p>
-        `;
-      }
+      btn.textContent = "開始掃碼";
+      btn.classList.remove("stop");
+
+      box.className = "result-box idle";
+      box.innerHTML = `
+        <h2>掃碼已停止</h2>
+        <p>需要繼續驗票時，請再按「開始掃碼」。</p>
+      `;
     }
 
     function verify(code) {
@@ -668,7 +590,7 @@
 
       box.className = "result-box loading";
       box.innerHTML = `
-        <h2>驗票中...</h2>
+        <h2>驗票中</h2>
         <p>${esc(code)}</p>
       `;
 
@@ -715,7 +637,7 @@
 
       if (res.result === "SUCCESS" && isWaitlist) {
         box.innerHTML = `
-          <h2>現場候位驗票成功</h2>
+          <h2>現場候位成功</h2>
           <div class="info-grid">
             <p><b>票券類型</b><span>現場候位</span></p>
             <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
@@ -727,7 +649,7 @@
 
       if (res.result === "DUPLICATE" && isWaitlist) {
         box.innerHTML = `
-          <h2>現場候位票已驗過</h2>
+          <h2>候位票已驗過</h2>
           <div class="info-grid">
             <p><b>票券類型</b><span>現場候位</span></p>
             <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
@@ -739,7 +661,7 @@
 
       if (res.result === "VOID" && isWaitlist) {
         box.innerHTML = `
-          <h2>現場候位票已作廢</h2>
+          <h2>候位票已作廢</h2>
           <p>${esc(res.message)}</p>
           <div class="info-grid">
             <p><b>票券類型</b><span>現場候位</span></p>
@@ -756,8 +678,6 @@
             <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
             <p><b>梯次</b><span>${esc(t.batchName)}</span></p>
             <p><b>姓名</b><span>${esc(t.studentName)}</span></p>
-            <p><b>學系</b><span>${esc(t.department)}</span></p>
-            <p><b>班級</b><span>${esc(t.className)}</span></p>
             <p><b>學號</b><span>${esc(t.studentId)}</span></p>
             <p><b>家長票</b><span>第 ${esc(t.guestNo)} 位</span></p>
             <p><b>入場時間</b><span>${esc(t.checkedInAt)}</span></p>
@@ -817,21 +737,9 @@
       if (!stats) return;
 
       const total = stats.total || { checkedIn: 0, tickets: 0 };
-      const t1 = stats.T1 || { checkedIn: 0, tickets: 0 };
-      const t2 = stats.T2 || { checkedIn: 0, tickets: 0 };
-      const wait = stats.WAIT || { checkedIn: 0, tickets: 0 };
 
       document.getElementById("cTotal").textContent =
         `${total.checkedIn} / ${total.tickets}`;
-
-      document.getElementById("cT1").textContent =
-        `${t1.checkedIn} / ${t1.tickets}`;
-
-      document.getElementById("cT2").textContent =
-        `${t2.checkedIn} / ${t2.tickets}`;
-
-      document.getElementById("cWAIT").textContent =
-        `${wait.checkedIn} / ${wait.tickets}`;
     }
 
     function gasCall(params) {
