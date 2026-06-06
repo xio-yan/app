@@ -58,18 +58,6 @@
       background: white;
     }
 
-    input:focus {
-      border-color: #1976d2;
-      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.16);
-    }
-
-    .btn-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
     button {
       width: 100%;
       font-size: 18px;
@@ -80,7 +68,6 @@
       background: #1976d2;
       font-weight: bold;
       cursor: pointer;
-      touch-action: manipulation;
     }
 
     button.gray {
@@ -93,6 +80,13 @@
 
     button.full {
       grid-column: 1 / -1;
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
     }
 
     .hidden {
@@ -268,20 +262,24 @@
       font-size: 20px;
     }
 
-    .toast {
+    .toast,
+    .scan-notice {
       position: fixed;
       left: 50%;
-      bottom: calc(20px + env(safe-area-inset-bottom));
       transform: translateX(-50%);
-      background: #0f172a;
       color: white;
-      padding: 13px 18px;
       border-radius: 999px;
-      font-size: 16px;
       z-index: 9999;
       max-width: calc(100% - 28px);
       text-align: center;
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
+    }
+
+    .toast {
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      background: #0f172a;
+      padding: 13px 18px;
+      font-size: 16px;
     }
 
     .toast.error {
@@ -290,6 +288,70 @@
 
     .toast.success {
       background: #16a34a;
+    }
+
+    .scan-notice {
+      top: calc(12px + env(safe-area-inset-top));
+      background: #16a34a;
+      padding: 12px 18px;
+      font-size: 18px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    body.scanning-mode .header,
+    body.scanning-mode #manualInput {
+      display: none !important;
+    }
+
+    body.scanning-mode .card {
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    body.scanning-mode .btn-row {
+      grid-template-columns: 1fr;
+      margin-top: 0;
+    }
+
+    body.scanning-mode .btn-row button:not(.gray) {
+      display: none !important;
+    }
+
+    body.scanning-mode .btn-row button.gray {
+      background: #dc2626;
+      font-size: 20px;
+    }
+
+    body.scanning-mode video {
+      height: 52vh;
+      min-height: 300px;
+    }
+
+    body.scanning-mode .stats div:not(:first-child) {
+      display: none;
+    }
+
+    body.scanning-mode .stats {
+      grid-template-columns: 1fr;
+      position: static;
+      padding: 0;
+      margin-top: 10px;
+      background: transparent;
+    }
+
+    body.scanning-mode .stats div {
+      padding: 16px;
+    }
+
+    body.scanning-mode .stats span {
+      font-size: 16px;
+    }
+
+    body.scanning-mode .stats strong {
+      font-size: 32px;
     }
 
     @media (max-width: 620px) {
@@ -336,111 +398,16 @@
         grid-template-columns: 1fr;
       }
 
-      .info-grid span {
-        font-size: 19px;
-      }
-
       .stats {
         grid-template-columns: repeat(2, 1fr);
       }
-
-      .stats strong {
-        font-size: 22px;
-      }
     }
-
-    @media (max-width: 380px) {
-      h1 {
-        font-size: 22px;
-      }
-
-      button {
-        font-size: 17px;
-        padding: 14px 12px;
-      }
-
-      .result-box h2 {
-        font-size: 27px;
-      }
-
-      video {
-        height: 44vh;
-      }
-    }
-    
-    body.scanning-mode .card:first-child,
-body.scanning-mode .header,
-body.scanning-mode #manualInput {
-  display: none !important;
-}
-
-body.scanning-mode .card {
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-body.scanning-mode .btn-row {
-  grid-template-columns: 1fr;
-  margin-top: 0;
-}
-
-body.scanning-mode .btn-row button:not(.gray) {
-  display: none !important;
-}
-
-body.scanning-mode .btn-row button.gray {
-  background: #dc2626;
-  font-size: 20px;
-}
-
-body.scanning-mode video {
-  height: 52vh;
-  min-height: 300px;
-}
-
-body.scanning-mode .stats div:not(:first-child) {
-  display: none;
-}
-
-body.scanning-mode .stats {
-  grid-template-columns: 1fr;
-  position: static;
-  padding: 0;
-  margin-top: 10px;
-}
-
-body.scanning-mode .stats div {
-  padding: 16px;
-}
-
-body.scanning-mode .stats span {
-  font-size: 16px;
-}
-
-body.scanning-mode .stats strong {
-  font-size: 32px;
-}
-
-.scan-notice {
-  position: fixed;
-  top: calc(12px + env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
-  background: #16a34a;
-  color: white;
-  padding: 12px 18px;
-  border-radius: 999px;
-  font-size: 18px;
-  font-weight: bold;
-  z-index: 10000;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
-  pointer-events: none;
-}
   </style>
 </head>
 
 <body>
   <div id="scanNotice" class="scan-notice hidden">已掃描到 QR，驗票中...</div>
+
   <div class="shell">
     <section id="checkerLogin" class="card">
       <h1>相機驗票端登入</h1>
@@ -468,7 +435,7 @@ body.scanning-mode .stats strong {
 
         <div class="btn-row">
           <button onclick="startScan()">開啟相機</button>
-          <button class="gray" onclick="stopScan()">停止相機</button>
+          <button class="gray" onclick="stopScan()">結束掃碼</button>
           <button class="red full" onclick="logoutChecker()">登出</button>
         </div>
 
@@ -640,7 +607,7 @@ body.scanning-mode .stats strong {
 
             if (!code) return;
 
-            if (code === lastCode && now - lastScanTime < 2500) {
+            if (code === lastCode && now - lastScanTime < 1800) {
               return;
             }
 
@@ -648,24 +615,26 @@ body.scanning-mode .stats strong {
             lastScanTime = now;
             scanLock = true;
 
-showScanNotice();
-verify(code);
+            showScanNotice();
+            verify(code);
 
-setTimeout(function() {
-  scanLock = false;
-}, 500);
+            setTimeout(function() {
+              scanLock = false;
+            }, 500);
           }
         );
 
         document.body.classList.add("scanning-mode");
 
-box.className = "result-box idle";
-box.innerHTML = `
-  <h2>等待掃描</h2>
-  <p>請將 QR Code 對準掃描框。</p>
-`;
+        box.className = "result-box idle";
+        box.innerHTML = `
+          <h2>等待掃描</h2>
+          <p>請將 QR Code 對準掃描框。</p>
+        `;
 
       } catch (err) {
+        document.body.classList.remove("scanning-mode");
+
         box.className = "result-box error";
         box.innerHTML = `
           <h2>相機啟動失敗</h2>
@@ -677,6 +646,7 @@ box.innerHTML = `
 
     function stopScan() {
       document.body.classList.remove("scanning-mode");
+
       if (controls) {
         controls.stop();
         controls = null;
@@ -915,6 +885,22 @@ box.innerHTML = `
       });
     }
 
+    function showScanNotice() {
+      const notice = document.getElementById("scanNotice");
+
+      if (!notice) return;
+
+      notice.classList.remove("hidden");
+
+      if (navigator.vibrate) {
+        navigator.vibrate(80);
+      }
+
+      setTimeout(function() {
+        notice.classList.add("hidden");
+      }, 650);
+    }
+
     function esc(value) {
       if (value === null || value === undefined) return "";
 
@@ -925,22 +911,6 @@ box.innerHTML = `
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
     }
-    
-    function showScanNotice() {
-  const notice = document.getElementById("scanNotice");
-
-  if (!notice) return;
-
-  notice.classList.remove("hidden");
-
-  if (navigator.vibrate) {
-    navigator.vibrate(80);
-  }
-
-  setTimeout(function() {
-    notice.classList.add("hidden");
-  }, 650);
-}
 
     function toast(message, type) {
       const old = document.querySelector(".toast");
