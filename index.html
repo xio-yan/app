@@ -522,7 +522,7 @@
 
             if (!code) return;
 
-            if (code === lastCode && now - lastScanTime < 1600) {
+            if (code - lastScanTime < 2000) {
               return;
             }
 
@@ -535,7 +535,7 @@
 
             setTimeout(function() {
               scanLock = false;
-            }, 450);
+            }, 2000);
           }
         );
 
