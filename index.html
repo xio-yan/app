@@ -6,28 +6,37 @@
 <title>身份證字號檢查碼計算器</title>
 
 <style>
+*{
+    box-sizing:border-box;
+}
+
 body{
-    font-family: "Microsoft JhengHei", sans-serif;
-    background:#f5f7fa;
+    margin:0;
+    min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
-    min-height:100vh;
-    margin:0;
+    background:#f5f7fa;
+    font-family:"Microsoft JhengHei",sans-serif;
 }
 
 .container{
-    background:white;
+    width:90%;
+    max-width:600px;
+    background:#fff;
     padding:30px;
     border-radius:16px;
     box-shadow:0 5px 20px rgba(0,0,0,.1);
     text-align:center;
-    width:90%;
-    max-width:500px;
 }
 
 h1{
     margin-top:0;
+    color:#1f2937;
+}
+
+p{
+    color:#6b7280;
 }
 
 .inputs{
@@ -35,32 +44,35 @@ h1{
     justify-content:center;
     gap:8px;
     flex-wrap:wrap;
-    margin:20px 0;
+    margin:25px 0;
 }
 
 .inputs input{
-    width:40px;
-    height:50px;
+    width:45px;
+    height:55px;
+    border:2px solid #d1d5db;
+    border-radius:10px;
     text-align:center;
     font-size:24px;
-    border:2px solid #ddd;
-    border-radius:8px;
+    font-weight:bold;
     text-transform:uppercase;
+    caret-color:transparent;
 }
 
 .inputs input:focus{
-    border-color:#2563eb;
     outline:none;
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,.15);
 }
 
 button{
     background:#2563eb;
     color:white;
     border:none;
+    border-radius:10px;
     padding:12px 24px;
-    border-radius:8px;
-    cursor:pointer;
     font-size:16px;
+    cursor:pointer;
 }
 
 button:hover{
@@ -68,9 +80,18 @@ button:hover{
 }
 
 .result{
-    margin-top:20px;
-    font-size:28px;
+    margin-top:25px;
+    font-size:24px;
     font-weight:bold;
+}
+
+.complete-id{
+    color:#2563eb;
+    font-size:32px;
+    letter-spacing:2px;
+}
+
+.error{
     color:#dc2626;
 }
 </style>
@@ -78,37 +99,88 @@ button:hover{
 <body>
 
 <div class="container">
-    <h1>身份證字號最後一碼計算</h1>
-    <p>輸入前 9 碼</p>
+    <h1>身份證字號最後一碼計算器</h1>
+    <p>請輸入前 9 碼</p>
 
     <div class="inputs" id="inputs"></div>
 
     <button onclick="calculate()">計算最後一碼</button>
 
-    <div class="result" id="result"></div>
+    <div id="result" class="result"></div>
 </div>
 
 <script>
 const container = document.getElementById("inputs");
 
 for(let i=0;i<9;i++){
+
     const input = document.createElement("input");
+
     input.maxLength = 1;
 
+    if(i === 0){
+        input.placeholder = "A";
+        input.inputMode = "text";
+        input.autocomplete = "off";
+        input.autocapitalize = "characters";
+    }else{
+        input.placeholder = "0";
+        input.inputMode = "numeric";
+        input.pattern = "[0-9]*";
+    }
+
     input.addEventListener("input", function(){
-        this.value = this.value.toUpperCase();
+
+        if(i === 0){
+            this.value = this.value
+                .toUpperCase()
+                .replace(/[^A-Z]/g,"");
+        }else{
+            this.value = this.value.replace(/[^0-9]/g,"");
+        }
 
         if(this.value.length === 1 && this.nextElementSibling){
             this.nextElementSibling.focus();
         }
 
-        if(i === 8){
-            calculate();
-        }
+        autoCalculate();
     });
 
     input.addEventListener("keydown", function(e){
-        if(e.key === "Backspace" && !this.value && this.previousElementSibling){
+
+        const allowKeys = [
+            "Backspace",
+            "Delete",
+            "Tab",
+            "ArrowLeft",
+            "ArrowRight"
+        ];
+
+        if(i === 0){
+
+            if(
+                !/[a-zA-Z]/.test(e.key) &&
+                !allowKeys.includes(e.key)
+            ){
+                e.preventDefault();
+            }
+
+        }else{
+
+            if(
+                !/[0-9]/.test(e.key) &&
+                !allowKeys.includes(e.key)
+            ){
+                e.preventDefault();
+            }
+
+        }
+
+        if(
+            e.key === "Backspace" &&
+            this.value === "" &&
+            this.previousElementSibling
+        ){
             this.previousElementSibling.focus();
         }
     });
@@ -116,8 +188,27 @@ for(let i=0;i<9;i++){
     container.appendChild(input);
 }
 
-function calculate(){
+function autoCalculate(){
+
     const inputs = document.querySelectorAll(".inputs input");
+
+    let filled = true;
+
+    inputs.forEach(input=>{
+        if(input.value === ""){
+            filled = false;
+        }
+    });
+
+    if(filled){
+        calculate();
+    }
+}
+
+function calculate(){
+
+    const inputs = document.querySelectorAll(".inputs input");
+
     let id9 = "";
 
     inputs.forEach(input=>{
@@ -139,7 +230,8 @@ function calculate(){
     const letter = id9.charAt(0);
 
     if(!letters[letter]){
-        document.getElementById("result").innerHTML = "格式錯誤";
+        document.getElementById("result").innerHTML =
+            '<div class="error">第一碼必須為英文字母</div>';
         return;
     }
 
@@ -152,20 +244,24 @@ function calculate(){
     const weights = [8,7,6,5,4,3,2,1];
 
     for(let i=1;i<9;i++){
-        const n = parseInt(id9.charAt(i));
 
-        if(isNaN(n)){
-            document.getElementById("result").innerHTML = "格式錯誤";
+        const num = parseInt(id9.charAt(i));
+
+        if(isNaN(num)){
+            document.getElementById("result").innerHTML =
+                '<div class="error">格式錯誤</div>';
             return;
         }
 
-        sum += n * weights[i-1];
+        sum += num * weights[i-1];
     }
 
     const checkDigit = (10 - (sum % 10)) % 10;
 
-    document.getElementById("result").innerHTML =
-        `完整身份證字號：<br><span style="color:#2563eb">${id9}${checkDigit}</span>`;
+    document.getElementById("result").innerHTML = `
+        <div>完整身份證字號</div>
+        <div class="complete-id">${id9}${checkDigit}</div>
+    `;
 }
 </script>
 
