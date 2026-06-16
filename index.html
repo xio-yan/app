@@ -1,841 +1,173 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>觀禮驗票端</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>身份證字號檢查碼計算器</title>
 
-  <script src="https://unpkg.com/@zxing/browser@latest"></script>
+<style>
+body{
+    font-family: "Microsoft JhengHei", sans-serif;
+    background:#f5f7fa;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    margin:0;
+}
 
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+.container{
+    background:white;
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 5px 20px rgba(0,0,0,.1);
+    text-align:center;
+    width:90%;
+    max-width:500px;
+}
 
-    html, body {
-      margin: 0;
-      width: 100%;
-      min-height: 100%;
-      font-family: Arial, "Microsoft JhengHei", sans-serif;
-      background: linear-gradient(180deg, #f7f4ef, #eef3f6);
-      color: #334155;
-    }
+h1{
+    margin-top:0;
+}
 
-    body {
-      padding-bottom: env(safe-area-inset-bottom);
-    }
+.inputs{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin:20px 0;
+}
 
-    .page {
-      width: 100%;
-      min-height: 100vh;
-      padding: 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+.inputs input{
+    width:40px;
+    height:50px;
+    text-align:center;
+    font-size:24px;
+    border:2px solid #ddd;
+    border-radius:8px;
+    text-transform:uppercase;
+}
 
-    .app {
-      width: 100%;
-      max-width: 520px;
-    }
+.inputs input:focus{
+    border-color:#2563eb;
+    outline:none;
+}
 
-    .card {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 26px;
-      padding: 22px;
-      box-shadow: 0 14px 36px rgba(100, 116, 139, 0.16);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-    }
+button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:12px 24px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+}
 
-    h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-      color: #475569;
-      text-align: center;
-    }
+button:hover{
+    background:#1d4ed8;
+}
 
-    .sub {
-      margin: 0 0 20px;
-      text-align: center;
-      color: #94a3b8;
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    input {
-      width: 100%;
-      border: 1px solid #dbe3ea;
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 16px;
-      font-size: 16px;
-      margin-bottom: 12px;
-      outline: none;
-      color: #334155;
-    }
-
-    input:focus {
-      border-color: #a7c7d9;
-      box-shadow: 0 0 0 4px rgba(167, 199, 217, 0.25);
-    }
-
-    button {
-      width: 100%;
-      border: none;
-      border-radius: 18px;
-      padding: 16px;
-      font-size: 19px;
-      font-weight: bold;
-      color: white;
-      background: #88aebf;
-      cursor: pointer;
-      box-shadow: 0 8px 18px rgba(136, 174, 191, 0.35);
-    }
-
-    button:active {
-      transform: scale(0.98);
-    }
-
-    button.stop {
-      background: #d99a8f;
-      box-shadow: 0 8px 18px rgba(217, 154, 143, 0.35);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .scanner-page {
-      width: 100%;
-      min-height: 100vh;
-      padding: 12px;
-    }
-
-    .scanner-wrap {
-      width: 100%;
-      max-width: 620px;
-      margin: 0 auto;
-    }
-
-    .top-count {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 24px;
-      padding: 16px;
-      text-align: center;
-      margin-bottom: 12px;
-      box-shadow: 0 10px 24px rgba(100, 116, 139, 0.12);
-    }
-
-    .top-count span {
-      display: block;
-      color: #94a3b8;
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
-
-    .top-count strong {
-      font-size: 34px;
-      color: #475569;
-    }
-
-    .scan-card {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 26px;
-      padding: 12px;
-      margin-bottom: 12px;
-      box-shadow: 0 12px 30px rgba(100, 116, 139, 0.14);
-    }
-
-    .scan-frame {
-      position: relative;
-      overflow: hidden;
-      border-radius: 22px;
-      background: #111827;
-    }
-
-    video {
-      display: block;
-      width: 100%;
-      height: 54vh;
-      min-height: 320px;
-      max-height: 520px;
-      object-fit: cover;
-      background: #111827;
-    }
-
-    .scan-box {
-      position: absolute;
-      inset: 15%;
-      border: 3px solid rgba(255, 255, 255, 0.55);
-      border-radius: 24px;
-      pointer-events: none;
-    }
-
-    .scan-line {
-      position: absolute;
-      left: 13%;
-      right: 13%;
-      top: 50%;
-      height: 4px;
-      border-radius: 99px;
-      background: rgba(167, 220, 190, 0.95);
-      box-shadow: 0 0 18px rgba(167, 220, 190, 0.9);
-      pointer-events: none;
-    }
-
-    .main-button {
-      margin-bottom: 12px;
-    }
-
-    .result-box {
-      border-radius: 26px;
-      padding: 22px;
-      text-align: center;
-      border: 3px solid transparent;
-      background: rgba(255,255,255,0.9);
-      box-shadow: 0 10px 24px rgba(100, 116, 139, 0.12);
-      min-height: 150px;
-    }
-
-    .result-box h2 {
-      margin: 0 0 12px;
-      font-size: 34px;
-      line-height: 1.2;
-    }
-
-    .result-box p {
-      margin: 8px 0;
-      line-height: 1.6;
-      font-size: 16px;
-    }
-
-    .result-box.idle {
-      border-color: #dbe3ea;
-      color: #64748b;
-    }
-
-    .result-box.loading {
-      background: #eef6fb;
-      border-color: #a7c7d9;
-      color: #3f6072;
-    }
-
-    .result-box.success {
-      background: #edf8f0;
-      border-color: #9fd3b0;
-      color: #2f6b45;
-    }
-
-    .result-box.warning {
-      background: #fff7e6;
-      border-color: #e9c46a;
-      color: #8a5a00;
-    }
-
-    .result-box.error {
-      background: #fff0ef;
-      border-color: #e9a19a;
-      color: #8f3f38;
-    }
-
-    .info-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      text-align: left;
-      margin-top: 12px;
-    }
-
-    .info-grid p {
-      margin: 0;
-      background: rgba(255,255,255,0.72);
-      padding: 12px;
-      border-radius: 16px;
-    }
-
-    .info-grid b {
-      display: block;
-      font-size: 13px;
-      opacity: 0.68;
-      margin-bottom: 4px;
-    }
-
-    .info-grid span {
-      display: block;
-      font-size: 18px;
-      font-weight: bold;
-      word-break: break-all;
-    }
-
-    .scan-notice {
-      position: fixed;
-      top: calc(14px + env(safe-area-inset-top));
-      left: 50%;
-      transform: translateX(-50%);
-      background: #8fbfa2;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 999px;
-      font-weight: bold;
-      font-size: 17px;
-      z-index: 9999;
-      box-shadow: 0 10px 24px rgba(100, 116, 139, 0.25);
-      pointer-events: none;
-    }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: calc(20px + env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      background: #475569;
-      color: white;
-      padding: 13px 18px;
-      border-radius: 999px;
-      font-size: 16px;
-      z-index: 9999;
-      max-width: calc(100% - 28px);
-      text-align: center;
-      box-shadow: 0 8px 22px rgba(100, 116, 139, 0.25);
-    }
-
-    .toast.error {
-      background: #d26f65;
-    }
-
-    .toast.success {
-      background: #7ab792;
-    }
-
-    @media (max-width: 520px) {
-      .page {
-        padding: 14px;
-      }
-
-      .card {
-        padding: 20px;
-      }
-
-      h1 {
-        font-size: 26px;
-      }
-
-      .scanner-page {
-        padding: 10px;
-      }
-
-      .top-count strong {
-        font-size: 32px;
-      }
-
-      video {
-        height: 50vh;
-        min-height: 300px;
-      }
-
-      .result-box {
-        padding: 18px;
-      }
-
-      .result-box h2 {
-        font-size: 30px;
-      }
-
-      .info-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .info-grid span {
-        font-size: 18px;
-      }
-    }
-
-    @media (max-width: 380px) {
-      video {
-        height: 46vh;
-        min-height: 270px;
-      }
-
-      .result-box h2 {
-        font-size: 27px;
-      }
-
-      .top-count strong {
-        font-size: 30px;
-      }
-    }
-  </style>
+.result{
+    margin-top:20px;
+    font-size:28px;
+    font-weight:bold;
+    color:#dc2626;
+}
+</style>
 </head>
-
 <body>
-  <div id="scanNotice" class="scan-notice hidden">已掃描到 QR，驗票中...</div>
 
-  <section id="loginPage" class="page">
-    <div class="app">
-      <div class="card">
-        <h1>觀禮驗票端</h1>
-        <p class="sub">請登入後開始掃描 QR Code</p>
+<div class="container">
+    <h1>身份證字號最後一碼計算</h1>
+    <p>輸入前 9 碼</p>
 
-        <input id="checkerPassword" type="password" placeholder="請輸入驗票密碼">
-        <input id="checkerName" placeholder="驗票人員名稱，例如：入口A">
+    <div class="inputs" id="inputs"></div>
 
-        <button onclick="loginChecker()">登入驗票端</button>
-      </div>
-    </div>
-  </section>
+    <button onclick="calculate()">計算最後一碼</button>
 
-  <main id="scannerPage" class="scanner-page hidden">
-    <div class="scanner-wrap">
+    <div class="result" id="result"></div>
+</div>
 
-      <section class="top-count">
-        <span>總入場人數</span>
-        <strong id="cTotal">0 / 0</strong>
-      </section>
+<script>
+const container = document.getElementById("inputs");
 
-      <button id="scanToggleBtn" class="main-button" onclick="toggleScan()">開始掃碼</button>
+for(let i=0;i<9;i++){
+    const input = document.createElement("input");
+    input.maxLength = 1;
 
-      <section class="scan-card">
-        <div class="scan-frame">
-          <video id="video" autoplay muted playsinline></video>
-          <div class="scan-box"></div>
-          <div class="scan-line"></div>
-        </div>
-      </section>
+    input.addEventListener("input", function(){
+        this.value = this.value.toUpperCase();
 
-      <section id="resultBox" class="result-box idle">
-        <h2>尚未開始</h2>
-        <p>請按「開始掃碼」後，將 QR Code 對準掃描框。</p>
-      </section>
+        if(this.value.length === 1 && this.nextElementSibling){
+            this.nextElementSibling.focus();
+        }
 
-    </div>
-  </main>
-
-  <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwM648_Zc1eKHjlwJYRwwgKFEskn6_1D9ynT32RVAFKCArnGxXOFKoD-S-xEU-Pv-Oj/exec";
-
-    let CHECKER_NAME = localStorage.getItem("CHECKER_NAME") || "";
-    let CHECKER_TOKEN = sessionStorage.getItem("CHECKER_TOKEN") || "";
-
-    let codeReader = null;
-    let controls = null;
-    let isScanning = false;
-    let scanLock = false;
-    let lastCode = "";
-    let lastScanTime = 0;
-    let statsTimer = null;
-
-    window.addEventListener("load", function() {
-      document.getElementById("checkerName").value = CHECKER_NAME;
+        if(i === 8){
+            calculate();
+        }
     });
 
-    function loginChecker() {
-      const password = document.getElementById("checkerPassword").value.trim();
-      const name = document.getElementById("checkerName").value.trim() || "相機驗票端";
-
-      if (!password) {
-        toast("請輸入驗票密碼", "error");
-        return;
-      }
-
-      toast("登入檢查中...");
-
-      gasCall({
-        api: "checkerLogin",
-        password: password,
-        checkerName: name
-      }).then(function(res) {
-        if (res.success) {
-          CHECKER_NAME = name;
-          CHECKER_TOKEN = res.token;
-
-          localStorage.setItem("CHECKER_NAME", name);
-          sessionStorage.setItem("CHECKER_TOKEN", res.token);
-
-          document.getElementById("loginPage").classList.add("hidden");
-          document.getElementById("scannerPage").classList.remove("hidden");
-
-          toast("登入成功", "success");
-
-          if (res.stats) {
-            renderCheckerStats(res.stats);
-          }
-
-          refreshCheckerStats();
-
-          if (statsTimer) clearInterval(statsTimer);
-          statsTimer = setInterval(refreshCheckerStats, 3000);
-
-        } else {
-          toast(res.message || "驗票密碼錯誤", "error");
+    input.addEventListener("keydown", function(e){
+        if(e.key === "Backspace" && !this.value && this.previousElementSibling){
+            this.previousElementSibling.focus();
         }
-      }).catch(function(err) {
-        toast(err.message || String(err), "error");
-      });
+    });
+
+    container.appendChild(input);
+}
+
+function calculate(){
+    const inputs = document.querySelectorAll(".inputs input");
+    let id9 = "";
+
+    inputs.forEach(input=>{
+        id9 += input.value.trim().toUpperCase();
+    });
+
+    if(id9.length !== 9){
+        document.getElementById("result").innerHTML = "";
+        return;
     }
 
-    function toggleScan() {
-      if (isScanning) {
-        stopScan();
-      } else {
-        startScan();
-      }
+    const letters = {
+        A:10,B:11,C:12,D:13,E:14,F:15,G:16,H:17,
+        I:34,J:18,K:19,L:20,M:21,N:22,O:35,P:23,
+        Q:24,R:25,S:26,T:27,U:28,V:29,W:32,X:30,
+        Y:31,Z:33
+    };
+
+    const letter = id9.charAt(0);
+
+    if(!letters[letter]){
+        document.getElementById("result").innerHTML = "格式錯誤";
+        return;
     }
 
-    async function startScan() {
-      const video = document.getElementById("video");
-      const box = document.getElementById("resultBox");
-      const btn = document.getElementById("scanToggleBtn");
+    const code = letters[letter].toString();
 
-      box.className = "result-box loading";
-      box.innerHTML = `
-        <h2>相機啟動中</h2>
-        <p>請允許相機權限。</p>
-      `;
+    let sum =
+        parseInt(code[0]) * 1 +
+        parseInt(code[1]) * 9;
 
-      try {
-        if (controls) {
-          controls.stop();
-          controls = null;
+    const weights = [8,7,6,5,4,3,2,1];
+
+    for(let i=1;i<9;i++){
+        const n = parseInt(id9.charAt(i));
+
+        if(isNaN(n)){
+            document.getElementById("result").innerHTML = "格式錯誤";
+            return;
         }
 
-        codeReader = new ZXingBrowser.BrowserQRCodeReader();
-
-        const constraints = {
-          video: {
-            facingMode: { ideal: "environment" },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false
-        };
-
-        controls = await codeReader.decodeFromConstraints(
-          constraints,
-          video,
-          function(result) {
-            if (!result) return;
-            if (scanLock) return;
-
-            const code = result.getText();
-            const now = Date.now();
-
-            if (!code) return;
-
-            if (code - lastScanTime < 2000) {
-              return;
-            }
-
-            lastCode = code;
-            lastScanTime = now;
-            scanLock = true;
-
-            showScanNotice();
-            verify(code);
-
-            setTimeout(function() {
-              scanLock = false;
-            }, 2000);
-          }
-        );
-
-        isScanning = true;
-        btn.textContent = "結束掃碼";
-        btn.classList.add("stop");
-
-        box.className = "result-box idle";
-        box.innerHTML = `
-          <h2>等待掃描</h2>
-          <p>請將 QR Code 對準掃描框。</p>
-        `;
-
-      } catch (err) {
-        isScanning = false;
-        btn.textContent = "開始掃碼";
-        btn.classList.remove("stop");
-
-        box.className = "result-box error";
-        box.innerHTML = `
-          <h2>相機啟動失敗</h2>
-          <p>${esc(err.name || "")}</p>
-          <p>${esc(err.message || err)}</p>
-        `;
-      }
+        sum += n * weights[i-1];
     }
 
-    function stopScan() {
-      const box = document.getElementById("resultBox");
-      const btn = document.getElementById("scanToggleBtn");
+    const checkDigit = (10 - (sum % 10)) % 10;
 
-      if (controls) {
-        controls.stop();
-        controls = null;
-      }
+    document.getElementById("result").innerHTML =
+        `完整身份證字號：<br><span style="color:#2563eb">${id9}${checkDigit}</span>`;
+}
+</script>
 
-      isScanning = false;
-      scanLock = false;
-
-      btn.textContent = "開始掃碼";
-      btn.classList.remove("stop");
-
-      box.className = "result-box idle";
-      box.innerHTML = `
-        <h2>掃碼已停止</h2>
-        <p>需要繼續驗票時，請再按「開始掃碼」。</p>
-      `;
-    }
-
-    function verify(code) {
-      const box = document.getElementById("resultBox");
-
-      box.className = "result-box loading";
-      box.innerHTML = `
-        <h2>驗票中</h2>
-        <p>${esc(code)}</p>
-      `;
-
-      gasCall({
-        api: "verifyTicket",
-        token: CHECKER_TOKEN,
-        code: code
-      }).then(function(res) {
-        renderVerifyResult(res);
-
-        if (res.stats) {
-          renderCheckerStats(res.stats);
-        }
-      }).catch(function(err) {
-        box.className = "result-box error";
-        box.innerHTML = `
-          <h2>驗票失敗</h2>
-          <p>${esc(err.message || err || "系統發生錯誤")}</p>
-        `;
-      });
-    }
-
-    function renderVerifyResult(res) {
-      const box = document.getElementById("resultBox");
-      const t = res.ticket || {};
-      const isWaitlist = t.isWaitlist || t.batch === "WAIT" || t.batchName === "現場候位";
-
-      let cls = "error";
-
-      if (res.result === "SUCCESS") cls = "success";
-      if (res.result === "DUPLICATE") cls = "warning";
-      if (res.result === "VOID") cls = "error";
-      if (res.result === "AUTH_EXPIRED") cls = "error";
-
-      box.className = "result-box " + cls;
-
-      if (res.result === "AUTH_EXPIRED") {
-        box.innerHTML = `
-          <h2>登入已過期</h2>
-          <p>${esc(res.message || "請重新登入")}</p>
-        `;
-        return;
-      }
-
-      if (res.result === "SUCCESS" && isWaitlist) {
-        box.innerHTML = `
-          <h2>現場候位成功</h2>
-          <div class="info-grid">
-            <p><b>票券類型</b><span>現場候位</span></p>
-            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
-            <p><b>入場時間</b><span>${esc(t.checkedInAt)}</span></p>
-          </div>
-        `;
-        return;
-      }
-
-      if (res.result === "DUPLICATE" && isWaitlist) {
-        box.innerHTML = `
-          <h2>候位票已驗過</h2>
-          <div class="info-grid">
-            <p><b>票券類型</b><span>現場候位</span></p>
-            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
-            <p><b>原入場時間</b><span>${esc(t.checkedInAt || res.checkedInAt)}</span></p>
-          </div>
-        `;
-        return;
-      }
-
-      if (res.result === "VOID" && isWaitlist) {
-        box.innerHTML = `
-          <h2>候位票已作廢</h2>
-          <p>${esc(res.message)}</p>
-          <div class="info-grid">
-            <p><b>票券類型</b><span>現場候位</span></p>
-            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
-          </div>
-        `;
-        return;
-      }
-
-      if (res.result === "SUCCESS") {
-        box.innerHTML = `
-          <h2>驗票成功</h2>
-          <div class="info-grid">
-            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
-            <p><b>梯次</b><span>${esc(t.batchName)}</span></p>
-            <p><b>姓名</b><span>${esc(t.studentName)}</span></p>
-            <p><b>學號</b><span>${esc(t.studentId)}</span></p>
-            <p><b>家長票</b><span>第 ${esc(t.guestNo)} 位</span></p>
-            <p><b>入場時間</b><span>${esc(t.checkedInAt)}</span></p>
-          </div>
-        `;
-        return;
-      }
-
-      if (res.result === "DUPLICATE") {
-        box.innerHTML = `
-          <h2>此票已驗過</h2>
-          <div class="info-grid">
-            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
-            <p><b>梯次</b><span>${esc(t.batchName)}</span></p>
-            <p><b>姓名</b><span>${esc(t.studentName)}</span></p>
-            <p><b>學號</b><span>${esc(t.studentId)}</span></p>
-            <p><b>原入場時間</b><span>${esc(t.checkedInAt || res.checkedInAt)}</span></p>
-          </div>
-        `;
-        return;
-      }
-
-      if (res.result === "VOID") {
-        box.innerHTML = `
-          <h2>票券已作廢</h2>
-          <p>${esc(res.message)}</p>
-          <div class="info-grid">
-            <p><b>票號</b><span>${esc(t.ticketId)}</span></p>
-            <p><b>姓名</b><span>${esc(t.studentName)}</span></p>
-            <p><b>學號</b><span>${esc(t.studentId)}</span></p>
-          </div>
-        `;
-        return;
-      }
-
-      box.innerHTML = `
-        <h2>無效票券</h2>
-        <p>${esc(res.message || "無效票券")}</p>
-        <p>原始內容：${esc(res.rawInput || "")}</p>
-      `;
-    }
-
-    function refreshCheckerStats() {
-      if (!CHECKER_TOKEN) return;
-
-      gasCall({
-        api: "checkerStats",
-        token: CHECKER_TOKEN
-      }).then(function(res) {
-        if (res.success && res.stats) {
-          renderCheckerStats(res.stats);
-        }
-      });
-    }
-
-    function renderCheckerStats(stats) {
-      if (!stats) return;
-
-      const total = stats.total || { checkedIn: 0, tickets: 0 };
-
-      document.getElementById("cTotal").textContent =
-        `${total.checkedIn} / ${total.tickets}`;
-    }
-
-    function gasCall(params) {
-      return new Promise(function(resolve, reject) {
-        const callbackName =
-          "gasCallback_" +
-          Date.now() +
-          "_" +
-          Math.floor(Math.random() * 100000);
-
-        params = params || {};
-        params.callback = callbackName;
-        params.t = Date.now();
-
-        const query = Object.keys(params)
-          .map(function(key) {
-            return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
-          })
-          .join("&");
-
-        const script = document.createElement("script");
-        const timer = setTimeout(function() {
-          cleanup();
-          reject(new Error("連線逾時，請檢查網路或 Apps Script 部署權限"));
-        }, 15000);
-
-        window[callbackName] = function(data) {
-          cleanup();
-          resolve(data);
-        };
-
-        script.onerror = function() {
-          cleanup();
-          reject(new Error("無法連線到 Apps Script"));
-        };
-
-        script.src = GAS_URL + "?" + query;
-        document.body.appendChild(script);
-
-        function cleanup() {
-          clearTimeout(timer);
-
-          if (window[callbackName]) {
-            delete window[callbackName];
-          }
-
-          if (script.parentNode) {
-            script.parentNode.removeChild(script);
-          }
-        }
-      });
-    }
-
-    function showScanNotice() {
-      const notice = document.getElementById("scanNotice");
-
-      if (!notice) return;
-
-      notice.classList.remove("hidden");
-
-      if (navigator.vibrate) {
-        navigator.vibrate(80);
-      }
-
-      setTimeout(function() {
-        notice.classList.add("hidden");
-      }, 650);
-    }
-
-    function esc(value) {
-      if (value === null || value === undefined) return "";
-
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function toast(message, type) {
-      const old = document.querySelector(".toast");
-
-      if (old) {
-        old.remove();
-      }
-
-      const div = document.createElement("div");
-      div.className = "toast " + (type || "info");
-      div.textContent = message;
-      document.body.appendChild(div);
-
-      setTimeout(function() {
-        div.remove();
-      }, 3000);
-    }
-  </script>
 </body>
 </html>
