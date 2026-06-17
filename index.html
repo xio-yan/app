@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>身分證字號檢查碼計算器</title>
+<title>身份證字號分析器</title>
 
 <style>
 *{box-sizing:border-box}
-
 body{
     margin:0;
     min-height:100vh;
@@ -17,26 +16,17 @@ body{
     background:#f5f7fa;
     font-family:"Microsoft JhengHei",sans-serif;
 }
-
 .container{
     width:92%;
     max-width:650px;
     background:#fff;
     padding:30px;
     border-radius:18px;
-    box-shadow:0 6px 24px rgba(0,0,0,.12);
+    box-shadow:0 8px 25px rgba(0,0,0,.12);
     text-align:center;
 }
-
-h1{
-    margin-top:0;
-    color:#1f2937;
-}
-
-p{
-    color:#6b7280;
-}
-
+h1{margin-top:0;color:#111827}
+p{color:#6b7280}
 .inputs{
     display:flex;
     justify-content:center;
@@ -44,10 +34,9 @@ p{
     flex-wrap:wrap;
     margin:25px 0;
 }
-
 .inputs input{
-    width:46px;
-    height:56px;
+    width:45px;
+    height:55px;
     border:2px solid #d1d5db;
     border-radius:10px;
     text-align:center;
@@ -56,55 +45,46 @@ p{
     text-transform:uppercase;
     caret-color:transparent;
 }
-
 .inputs input:focus{
     outline:none;
     border-color:#2563eb;
     box-shadow:0 0 0 3px rgba(37,99,235,.15);
 }
-
-button{
-    background:#2563eb;
-    color:white;
-    border:none;
-    border-radius:10px;
-    padding:12px 24px;
-    font-size:16px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#1d4ed8;
-}
-
 .result{
     margin-top:25px;
-    font-size:18px;
+    text-align:left;
 }
-
+.card{
+    background:#f9fafb;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    padding:18px;
+    margin-top:15px;
+}
 .complete-id{
+    text-align:center;
     color:#2563eb;
     font-size:32px;
     font-weight:bold;
     letter-spacing:2px;
-    margin:8px 0 18px;
 }
-
-.info{
-    text-align:left;
-    background:#f9fafb;
-    border-radius:14px;
-    padding:18px;
-    line-height:1.9;
+.info-row{
+    margin:10px 0;
+    font-size:17px;
 }
-
-.info strong{
-    color:#111827;
+.label{
+    font-weight:bold;
+    color:#374151;
 }
-
 .error{
     color:#dc2626;
     font-weight:bold;
+    text-align:center;
+}
+.note{
+    color:#6b7280;
+    font-size:14px;
+    margin-top:12px;
 }
 </style>
 </head>
@@ -112,47 +92,44 @@ button:hover{
 <body>
 
 <div class="container">
-    <h1>身分證字號最後一碼計算器</h1>
-    <p>請輸入前 9 碼，系統會自動算出最後一碼</p>
+    <h1>身份證字號最後一碼計算器</h1>
+    <p>輸入身份證字號前 9 碼，系統會自動算出最後一碼並分析資料</p>
 
     <div class="inputs" id="inputs"></div>
-
-    <button onclick="calculate()">計算最後一碼</button>
 
     <div id="result" class="result"></div>
 </div>
 
 <script>
-const container = document.getElementById("inputs");
+const inputBox = document.getElementById("inputs");
 
 const areaMap = {
-    A:{name:"臺北市", note:"現行代碼"},
-    B:{name:"臺中市", note:"現行代碼"},
-    C:{name:"基隆市", note:"現行代碼"},
-    D:{name:"臺南市", note:"現行代碼"},
-    E:{name:"高雄市", note:"現行代碼"},
-    F:{name:"新北市", note:"現行代碼"},
-    G:{name:"宜蘭縣", note:"現行代碼"},
-    H:{name:"桃園市", note:"現行代碼"},
-    I:{name:"嘉義市", note:"現行代碼"},
-    J:{name:"新竹縣", note:"現行代碼"},
-    K:{name:"苗栗縣", note:"現行代碼"},
-    M:{name:"南投縣", note:"現行代碼"},
-    N:{name:"彰化縣", note:"現行代碼"},
-    O:{name:"新竹市", note:"現行代碼"},
-    P:{name:"雲林縣", note:"現行代碼"},
-    Q:{name:"嘉義縣", note:"現行代碼"},
-    T:{name:"屏東縣", note:"現行代碼"},
-    U:{name:"花蓮縣", note:"現行代碼"},
-    V:{name:"臺東縣", note:"現行代碼"},
-    W:{name:"金門縣", note:"現行代碼"},
-    X:{name:"澎湖縣", note:"現行代碼"},
-    Z:{name:"連江縣", note:"現行代碼"},
-
-    L:{name:"臺中縣", note:"已停止賦配，2010 年 12 月 25 日後改用臺中市 B"},
-    R:{name:"臺南縣", note:"已停止賦配，2010 年 12 月 25 日後改用臺南市 D"},
-    S:{name:"高雄縣", note:"已停止賦配，2010 年 12 月 25 日後改用高雄市 E"},
-    Y:{name:"陽明山管理局", note:"已停止賦配，1974 年 1 月 1 日後改用臺北市 A"}
+    A:{area:"臺北市"},
+    B:{area:"臺中市"},
+    C:{area:"基隆市"},
+    D:{area:"臺南市"},
+    E:{area:"高雄市"},
+    F:{area:"新北市"},
+    G:{area:"宜蘭縣"},
+    H:{area:"桃園市"},
+    I:{area:"嘉義市"},
+    J:{area:"新竹縣"},
+    K:{area:"苗栗縣"},
+    M:{area:"南投縣"},
+    N:{area:"彰化縣"},
+    O:{area:"新竹市"},
+    P:{area:"雲林縣"},
+    Q:{area:"嘉義縣"},
+    T:{area:"屏東縣"},
+    U:{area:"花蓮縣"},
+    V:{area:"臺東縣"},
+    W:{area:"金門縣"},
+    X:{area:"澎湖縣"},
+    Z:{area:"連江縣"},
+    L:{area:"臺中縣", stop:"已停用，縣市合併後改用臺中市 B"},
+    R:{area:"臺南縣", stop:"已停用，縣市合併後改用臺南市 D"},
+    S:{area:"高雄縣", stop:"已停用，縣市合併後改用高雄市 E"},
+    Y:{area:"陽明山管理局", stop:"已停用"}
 };
 
 const letterCode = {
@@ -162,6 +139,19 @@ const letterCode = {
     Y:31,Z:33
 };
 
+const thirdCodeMap = {
+    "0":"在臺灣出生之本籍國民",
+    "1":"在臺灣出生之本籍國民",
+    "2":"在臺灣出生之本籍國民",
+    "3":"在臺灣出生之本籍國民",
+    "4":"在臺灣出生之本籍國民",
+    "5":"在臺灣出生之本籍國民",
+    "6":"入籍國民，原為外國人",
+    "7":"入籍國民，原為無戶籍國民",
+    "8":"入籍國民，原為香港或澳門居民",
+    "9":"入籍國民，原為大陸地區居民"
+};
+
 for(let i=0;i<9;i++){
     const input = document.createElement("input");
     input.maxLength = 1;
@@ -169,7 +159,6 @@ for(let i=0;i<9;i++){
     if(i === 0){
         input.placeholder = "A";
         input.inputMode = "text";
-        input.autocomplete = "off";
         input.autocapitalize = "characters";
     }else{
         input.placeholder = "0";
@@ -181,12 +170,12 @@ for(let i=0;i<9;i++){
         if(i === 0){
             this.value = this.value.toUpperCase().replace(/[^A-Z]/g,"");
         }else if(i === 1){
-            this.value = this.value.replace(/[^12]/g,"");
+            this.value = this.value.replace(/[^1-2]/g,"");
         }else{
             this.value = this.value.replace(/[^0-9]/g,"");
         }
 
-        if(this.value.length === 1 && this.nextElementSibling){
+        if(this.value && this.nextElementSibling){
             this.nextElementSibling.focus();
         }
 
@@ -196,42 +185,29 @@ for(let i=0;i<9;i++){
     input.addEventListener("keydown", function(e){
         const allowKeys = ["Backspace","Delete","Tab","ArrowLeft","ArrowRight"];
 
-        if(allowKeys.includes(e.key)) return;
-
-        if(i === 0 && !/^[a-zA-Z]$/.test(e.key)){
-            e.preventDefault();
+        if(i === 0){
+            if(!/[a-zA-Z]/.test(e.key) && !allowKeys.includes(e.key)){
+                e.preventDefault();
+            }
+        }else if(i === 1){
+            if(!/[1-2]/.test(e.key) && !allowKeys.includes(e.key)){
+                e.preventDefault();
+            }
+        }else{
+            if(!/[0-9]/.test(e.key) && !allowKeys.includes(e.key)){
+                e.preventDefault();
+            }
         }
 
-        if(i === 1 && !/^[12]$/.test(e.key)){
-            e.preventDefault();
-        }
-
-        if(i >= 2 && !/^[0-9]$/.test(e.key)){
-            e.preventDefault();
-        }
-    });
-
-    input.addEventListener("keyup", function(e){
         if(e.key === "Backspace" && this.value === "" && this.previousElementSibling){
             this.previousElementSibling.focus();
         }
     });
 
-    container.appendChild(input);
+    inputBox.appendChild(input);
 }
 
 function autoCalculate(){
-    const inputs = document.querySelectorAll(".inputs input");
-    let filled = true;
-
-    inputs.forEach(input=>{
-        if(input.value === "") filled = false;
-    });
-
-    if(filled) calculate();
-}
-
-function calculate(){
     const inputs = document.querySelectorAll(".inputs input");
     let id9 = "";
 
@@ -239,18 +215,22 @@ function calculate(){
         id9 += input.value.trim().toUpperCase();
     });
 
+    if(id9.length === 9){
+        calculate(id9);
+    }else{
+        document.getElementById("result").innerHTML = "";
+    }
+}
+
+function calculate(id9){
     const result = document.getElementById("result");
 
-    if(id9.length !== 9){
-        result.innerHTML = "";
-        return;
-    }
-
-    const letter = id9.charAt(0);
-    const genderCode = id9.charAt(1);
+    const letter = id9[0];
+    const genderCode = id9[1];
+    const thirdCode = id9[2];
 
     if(!letterCode[letter]){
-        result.innerHTML = `<div class="error">第一碼必須為英文字母 A-Z</div>`;
+        result.innerHTML = `<div class="error">第一碼地區代碼錯誤</div>`;
         return;
     }
 
@@ -259,7 +239,7 @@ function calculate(){
         return;
     }
 
-    const code = letterCode[letter].toString();
+    const code = String(letterCode[letter]);
 
     let sum =
         parseInt(code[0]) * 1 +
@@ -268,34 +248,40 @@ function calculate(){
     const weights = [8,7,6,5,4,3,2,1];
 
     for(let i=1;i<9;i++){
-        const num = parseInt(id9.charAt(i));
-
-        if(isNaN(num)){
-            result.innerHTML = `<div class="error">格式錯誤</div>`;
-            return;
-        }
-
-        sum += num * weights[i-1];
+        sum += parseInt(id9[i]) * weights[i-1];
     }
 
     const checkDigit = (10 - (sum % 10)) % 10;
     const fullId = id9 + checkDigit;
 
-    const area = areaMap[letter];
-    const gender = genderCode === "1" ? "男性" : "女性";
+    const genderText = genderCode === "1" ? "男性" : "女性";
+    const areaInfo = areaMap[letter];
+    const thirdText = thirdCodeMap[thirdCode];
 
     result.innerHTML = `
-        <div>完整身分證字號</div>
-        <div class="complete-id">${fullId}</div>
+        <div class="card">
+            <div class="label" style="text-align:center;">完整身份證字號</div>
+            <div class="complete-id">${fullId}</div>
+        </div>
 
-        <div class="info">
-            <div><strong>報戶口地區：</strong>${area.name}</div>
-            <div><strong>地區代碼：</strong>${letter}</div>
-            <div><strong>地區狀態：</strong>${area.note}</div>
-            <div><strong>性別：</strong>${gender}</div>
-            <div><strong>身分別：</strong>在臺灣出生之本籍國民</div>
-            <div><strong>流水號：</strong>${id9.substring(2,9)}</div>
-            <div><strong>驗證碼：</strong>${checkDigit}</div>
+        <div class="card">
+            <div class="info-row">
+                <span class="label">最後一碼：</span>${checkDigit}
+            </div>
+            <div class="info-row">
+                <span class="label">報戶口地區：</span>${areaInfo.area}
+            </div>
+            <div class="info-row">
+                <span class="label">性別：</span>${genderText}
+            </div>
+            <div class="info-row">
+                <span class="label">第三碼判斷：</span>${thirdText}
+            </div>
+            ${
+                areaInfo.stop
+                ? `<div class="note">提醒：${letter} 代碼${areaInfo.stop}</div>`
+                : ""
+            }
         </div>
     `;
 }
