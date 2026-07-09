@@ -255,7 +255,7 @@
     const qrContent = JSON.stringify({ type:"DRONE_RENTAL_ENCRYPTED_JSON", v:1, data: encrypted });
 
     $("qrcode").innerHTML = "";
-    new QRCode($("qrcode"), { text: qrContent, width: 230, height: 230, correctLevel: QRCode.CorrectLevel.M });
+    new QRCode($("qrcode"), { text: qrContent, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
     $("jsonBox").textContent = qrContent;
     $("toast").classList.add("show");
   }
