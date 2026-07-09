@@ -98,7 +98,16 @@
     .row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #f0ebe2;color:#666055;font-size:14px}
     .row:last-child{border-bottom:0}.row b{color:var(--text)}
     .total{font-size:28px;font-weight:950;color:#384431}
-    #qrcode{display:flex;justify-content:center;padding:20px;background:white;border-radius:24px;border:1px solid var(--line);min-height:252px;align-items:center}
+    #qrcode{
+  display:flex;
+  justify-content:center;
+  padding:14px;
+  background:white;
+  border-radius:24px;
+  border:1px solid var(--line);
+  min-height:190px;
+  align-items:center;
+}
     .empty-qr{text-align:center;color:var(--muted);line-height:1.7;font-size:14px;padding:30px}
     .notice{font-size:13px;line-height:1.7;color:var(--muted);margin-top:14px}
     .json-box{display:none;margin-top:16px;background:#2f332f;color:#f8f4ec;border-radius:18px;padding:14px;white-space:pre-wrap;word-break:break-all;font-size:12px;line-height:1.6;max-height:220px;overflow:auto}
@@ -255,7 +264,7 @@
     const qrContent = JSON.stringify({ type:"DRONE_RENTAL_ENCRYPTED_JSON", v:1, data: encrypted });
 
     $("qrcode").innerHTML = "";
-    new QRCode($("qrcode"), { text: qrContent, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
+    new QRCode($("qrcode"), { text: qrContent, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.M });
     $("jsonBox").textContent = qrContent;
     $("toast").classList.add("show");
   }
