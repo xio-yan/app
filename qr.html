@@ -4,10 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>無人機租借 QR Code 產生器</title>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-
   <style>
     :root{
       --bg1:#f8f4ec;
@@ -59,6 +57,10 @@
     }
     h1{font-size:42px;line-height:1.15;margin:18px 0 12px;letter-spacing:-.04em}
     .sub{font-size:16px;line-height:1.8;color:var(--muted);max-width:620px}
+    .price-card{padding:28px;display:flex;flex-direction:column;justify-content:space-between;min-height:260px}
+    .price-label{font-size:14px;color:var(--muted);font-weight:700;letter-spacing:.08em}
+    .amount{font-size:54px;font-weight:900;letter-spacing:-.04em;margin:10px 0;color:#384431}
+    .amount small{font-size:20px;color:var(--muted);font-weight:700}
     .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
     .chip{padding:9px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:13px;color:#686356}
     .main{display:grid;grid-template-columns:1fr 380px;gap:22px;align-items:start}
@@ -103,7 +105,7 @@
     .json-box.show{display:block}
     .toast{display:none;margin-top:14px;padding:12px 14px;border-radius:16px;background:rgba(123,143,104,.14);color:#566a48;font-weight:800;font-size:14px}
     .toast.show{display:block}
-    @media(max-width:900px){.hero,.main{grid-template-columns:1fr}.side{position:static}.grid{grid-template-columns:1fr}h1{font-size:34px}}
+    @media(max-width:900px){.hero,.main{grid-template-columns:1fr}.side{position:static}.grid{grid-template-columns:1fr}h1{font-size:34px}.amount{font-size:44px}}
   </style>
 </head>
 <body>
@@ -125,132 +127,28 @@
     <section class="main">
       <form class="glass" id="rentalForm">
         <h2 class="section-title">📝 租借預約申請</h2>
+        <div class="grid">
+          <div class="field"><label>租借者姓名</label><input id="name" required placeholder="例如：王小明"></div>
+          <div class="field"><label>聯絡電話</label><input id="phone" required placeholder="例如：0912345678" inputmode="tel"></div>
+          <div class="field"><label>預計租借日期</label><input id="date" required type="date"></div>
+          <div class="field"><label>預計時段</label><select id="slot" required><option value="上午場 09:00-12:00">上午場 09:00-12:00</option><option value="下午場 13:00-16:00">下午場 13:00-16:00</option></select></div>
+        </div>
+
+        <div class="field"><label>租借機型</label><select id="model" required><option value="mavic2">一般機型 Mavic 2｜$2,000</option><option value="plant_basic">植保機 15~25kg 基本級｜$3,500</option><option value="plant_advanced">植保機 15~25kg 高級組｜$3,500</option></select></div>
+
+        <div class="field" id="studentDiscountField"><label>是否為本中心學員優惠</label><div class="radio-row"><label class="option"><input type="radio" name="student" value="no" checked><div><strong>否，一般價格</strong><span>依原價計算</span></div></label><label class="option"><input type="radio" name="student" value="yes"><div><strong>是，套用優惠</strong><span>基本級 6 折，高級組 8 折</span></div></label></div></div>
 
         <div class="grid">
-          <div class="field">
-            <label>租借者姓名</label>
-            <input id="name" required placeholder="例如：王小明">
-          </div>
-
-          <div class="field">
-            <label>聯絡電話</label>
-            <input id="phone" required placeholder="例如：0912345678" inputmode="tel">
-          </div>
-
-          <div class="field">
-            <label>預計租借日期</label>
-            <input id="date" required type="date">
-          </div>
-
-          <div class="field">
-            <label>預計時段</label>
-            <select id="slot" required>
-              <option value="上午場 09:00-12:00">上午場 09:00-12:00</option>
-              <option value="下午場 13:00-16:00">下午場 13:00-16:00</option>
-            </select>
-          </div>
+          <div class="field"><label>加租電池數</label><select id="battery"><option value="0">0 顆</option><option value="1">1 顆</option><option value="2">2 顆</option><option value="3">3 顆</option><option value="4">4 顆</option><option value="5">5 顆</option><option value="6">6 顆</option></select></div>
+          <div class="field"><label>租借用途</label><select id="purpose" required><option value="考試用">考試用</option><option value="練習用">練習用</option><option value="其他">其他</option></select></div>
         </div>
 
-        <div class="field">
-          <label>租借機型</label>
-          <select id="model" required>
-            <option value="mavic2">一般機型 Mavic 2｜$2,000</option>
-            <option value="plant_basic">植保機 15~25kg 基本級｜$3,500</option>
-            <option value="plant_advanced">植保機 15~25kg 高級組｜$3,500</option>
-          </select>
-        </div>
+        <div class="field"><label>備註 / 其他用途說明</label><textarea id="note" placeholder="例如：預計抵達時間、陪同人員約定事項、其他需求"></textarea></div>
 
-        <div class="field" id="studentDiscountField">
-          <label>是否為本中心學員優惠</label>
-          <div class="radio-row">
-            <label class="option">
-              <input type="radio" name="student" value="no" checked>
-              <div>
-                <strong>否，一般價格</strong>
-                <span>依原價計算</span>
-              </div>
-            </label>
+        <div class="field"><label>是否需要發票抬頭 / 統編</label><div class="radio-row"><label class="option"><input type="radio" name="invoice" value="no" checked><div><strong>不需要</strong><span>不收集發票資料</span></div></label><label class="option"><input type="radio" name="invoice" value="yes"><div><strong>需要</strong><span>填寫抬頭與統編</span></div></label></div></div>
+        <div class="invoice-box" id="invoiceBox"><div class="grid"><div class="field"><label>發票抬頭</label><input id="invoiceTitle" placeholder="公司 / 單位名稱"></div><div class="field"><label>統一編號</label><input id="taxId" placeholder="8 碼統編" inputmode="numeric" maxlength="8"></div></div></div>
 
-            <label class="option">
-              <input type="radio" name="student" value="yes">
-              <div>
-                <strong>是，套用優惠</strong>
-                <span>基本級 6 折，高級組 8 折</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div class="grid">
-          <div class="field">
-            <label>加租電池數</label>
-            <select id="battery">
-              <option value="0">0 顆</option>
-              <option value="1">1 顆</option>
-              <option value="2">2 顆</option>
-              <option value="3">3 顆</option>
-              <option value="4">4 顆</option>
-              <option value="5">5 顆</option>
-              <option value="6">6 顆</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>租借用途</label>
-            <select id="purpose" required>
-              <option value="考試用">考試用</option>
-              <option value="練習用">練習用</option>
-              <option value="其他">其他</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>備註 / 其他用途說明</label>
-          <textarea id="note" placeholder="例如：預計抵達時間、陪同人員約定事項、其他需求"></textarea>
-        </div>
-
-        <div class="field">
-          <label>是否需要發票抬頭 / 統編</label>
-          <div class="radio-row">
-            <label class="option">
-              <input type="radio" name="invoice" value="no" checked>
-              <div>
-                <strong>不需要</strong>
-                <span>不收集發票資料</span>
-              </div>
-            </label>
-
-            <label class="option">
-              <input type="radio" name="invoice" value="yes">
-              <div>
-                <strong>需要</strong>
-                <span>填寫抬頭與統編</span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div class="invoice-box" id="invoiceBox">
-          <div class="grid">
-            <div class="field">
-              <label>發票抬頭</label>
-              <input id="invoiceTitle" placeholder="公司 / 單位名稱">
-            </div>
-
-            <div class="field">
-              <label>統一編號</label>
-              <input id="taxId" placeholder="8 碼統編" inputmode="numeric" maxlength="8">
-            </div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="primary" type="submit">產生加密 QR Code</button>
-          <button class="secondary" type="button" id="resetBtn">清空表單</button>
-          <button class="secondary" type="button" id="toggleJsonBtn">顯示 / 隱藏密文</button>
-        </div>
-
+        <div class="actions"><button class="primary" type="submit">產生加密 QR Code</button><button class="secondary" type="button" id="resetBtn">清空表單</button><button class="secondary" type="button" id="toggleJsonBtn">顯示 / 隱藏密文</button></div>
         <div class="toast" id="toast">QR Code 已產生。</div>
       </form>
 
@@ -262,104 +160,58 @@
           <div class="row"><span>電池單價</span><b id="batteryUnit">NT$ 200 / 顆</b></div>
           <div class="row"><span>合計</span><b class="total" id="totalPrice">NT$ 2,000</b></div>
         </div>
-
-        <div id="qrcode">
-          <div class="empty-qr">填寫資料後按下<br><b>產生加密 QR Code</b></div>
-        </div>
-
-        <div class="notice">
-          QR Code 內容為加密 JSON。請妥善保管下方程式中的密鑰，掃描頁需使用同一把密鑰才能解密。
-        </div>
-
+        <div id="qrcode"><div class="empty-qr">填寫資料後按下<br><b>產生加密 QR Code</b></div></div>
+        <div class="notice">QR Code 內容為加密 JSON。請妥善保管下方程式中的密鑰，掃描頁需使用同一把密鑰才能解密。</div>
         <pre class="json-box" id="jsonBox"></pre>
       </aside>
     </section>
   </div>
 
 <script>
-  // 正式使用前，請把這串改成你自己的長密鑰；掃描頁也必須使用同一串。
+  // ⚠️ 正式使用前，請把這串改成你自己的長密鑰；掃描頁也必須使用同一串。
   const SECRET_KEY = "CHANGE_THIS_TO_YOUR_OWN_SECRET_KEY_2026";
 
   const PRICES = {
-    mavic2: {
-      label: "一般機型 Mavic 2",
-      base: 2000,
-      battery: 200,
-      discountBase: null
-    },
-    plant_basic: {
-      label: "植保機 15~25kg 基本級",
-      base: 3500,
-      battery: 650,
-      discountBase: 2100
-    },
-    plant_advanced: {
-      label: "植保機 15~25kg 高級組",
-      base: 3500,
-      battery: 650,
-      discountBase: 2800
-    }
+    mavic2: { label: "一般機型 Mavic 2", base: 2000, battery: 200, discountBase: null },
+    plant_basic: { label: "植保機 15~25kg 基本級", base: 3500, battery: 650, discountBase: 2100 },
+    plant_advanced: { label: "植保機 15~25kg 高級組", base: 3500, battery: 650, discountBase: 2800 }
   };
 
   const $ = id => document.getElementById(id);
-
-  const fmt = n => {
-    return "NT$ " + Number(n || 0).toLocaleString("zh-TW");
-  };
-
-  const getRadio = name => {
-    return document.querySelector(`input[name="${name}"]:checked`).value;
-  };
+  const fmt = n => "NT$ " + Number(n || 0).toLocaleString("zh-TW");
+  const getRadio = name => document.querySelector(`input[name="${name}"]:checked`).value;
 
   function getPriceDetail(){
     const modelKey = $("model").value;
     const item = PRICES[modelKey];
     const isStudent = getRadio("student") === "yes";
     const batteryCount = Number($("battery").value || 0);
-
     const base = isStudent && item.discountBase ? item.discountBase : item.base;
     const batteryTotal = batteryCount * item.battery;
-
-    return {
-      modelKey,
-      item,
-      isStudent,
-      batteryCount,
-      base,
-      batteryTotal,
-      total: base + batteryTotal
-    };
+    return { modelKey, item, isStudent, batteryCount, base, batteryTotal, total: base + batteryTotal };
   }
 
   function updatePrice(){
     const p = getPriceDetail();
-
     $("basePrice").textContent = fmt(p.base);
     $("batteryPrice").textContent = fmt(p.batteryTotal);
     $("batteryUnit").textContent = `${fmt(p.item.battery)} / 顆`;
     $("totalPrice").textContent = fmt(p.total);
-
     $("studentDiscountField").style.display = p.modelKey === "mavic2" ? "none" : "flex";
-
-    if(p.modelKey === "mavic2"){
-      document.querySelector('input[name="student"][value="no"]').checked = true;
-    }
+    if(p.modelKey === "mavic2") document.querySelector('input[name="student"][value="no"]').checked = true;
   }
 
   function buildPayload(){
     const p = getPriceDetail();
     const needInvoice = getRadio("invoice") === "yes";
-
     return {
       version: 1,
       orderId: "DR" + new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0,14),
       createdAt: new Date().toISOString(),
-
       renter: {
         name: $("name").value.trim(),
         phone: $("phone").value.trim()
       },
-
       rental: {
         date: $("date").value,
         slot: $("slot").value,
@@ -370,13 +222,11 @@
         purpose: $("purpose").value,
         note: $("note").value.trim()
       },
-
       invoice: {
         required: needInvoice,
         title: needInvoice ? $("invoiceTitle").value.trim() : "",
         taxId: needInvoice ? $("taxId").value.trim() : ""
       },
-
       price: {
         basePrice: p.base,
         extraBatteryUnitPrice: p.item.battery,
@@ -387,89 +237,40 @@
   }
 
   function validatePayload(payload){
-    if(!payload.renter.name || !payload.renter.phone || !payload.rental.date){
-      return "請填寫姓名、電話與租借日期。";
-    }
-
+    if(!payload.renter.name || !payload.renter.phone || !payload.rental.date) return "請填寫姓名、電話與租借日期。";
     if(payload.invoice.required){
-      if(!payload.invoice.title || !payload.invoice.taxId){
-        return "需要發票時，請填寫發票抬頭與統一編號。";
-      }
-
-      if(!/^\d{8}$/.test(payload.invoice.taxId)){
-        return "統一編號需為 8 碼數字。";
-      }
+      if(!payload.invoice.title || !payload.invoice.taxId) return "需要發票時，請填寫發票抬頭與統一編號。";
+      if(!/^\d{8}$/.test(payload.invoice.taxId)) return "統一編號需為 8 碼數字。";
     }
-
     return "";
   }
 
   function generateQR(){
     const payload = buildPayload();
     const err = validatePayload(payload);
-
-    if(err){
-      alert(err);
-      return;
-    }
+    if(err){ alert(err); return; }
 
     const json = JSON.stringify(payload);
     const encrypted = CryptoJS.AES.encrypt(json, SECRET_KEY).toString();
-
-    const qrContent = JSON.stringify({
-      type: "DRONE_RENTAL_ENCRYPTED_JSON",
-      v: 1,
-      data: encrypted
-    });
+    const qrContent = JSON.stringify({ type:"DRONE_RENTAL_ENCRYPTED_JSON", v:1, data: encrypted });
 
     $("qrcode").innerHTML = "";
-
-    new QRCode($("qrcode"), {
-      text: qrContent,
-      width: 230,
-      height: 230,
-      correctLevel: QRCode.CorrectLevel.M
-    });
-
+    new QRCode($("qrcode"), { text: qrContent, width: 230, height: 230, correctLevel: QRCode.CorrectLevel.M });
     $("jsonBox").textContent = qrContent;
     $("toast").classList.add("show");
   }
 
-  document.querySelectorAll("input,select,textarea").forEach(el => {
+  document.querySelectorAll("input,select,textarea").forEach(el=>{
     el.addEventListener("input", updatePrice);
-
     el.addEventListener("change", () => {
       updatePrice();
       $("invoiceBox").classList.toggle("show", getRadio("invoice") === "yes");
     });
   });
 
-  $("rentalForm").addEventListener("submit", e => {
-    e.preventDefault();
-    generateQR();
-  });
-
-  $("resetBtn").addEventListener("click", () => {
-    $("rentalForm").reset();
-
-    $("qrcode").innerHTML = `
-      <div class="empty-qr">
-        填寫資料後按下<br>
-        <b>產生加密 QR Code</b>
-      </div>
-    `;
-
-    $("jsonBox").textContent = "";
-    $("toast").classList.remove("show");
-    $("invoiceBox").classList.remove("show");
-
-    updatePrice();
-  });
-
-  $("toggleJsonBtn").addEventListener("click", () => {
-    $("jsonBox").classList.toggle("show");
-  });
-
+  $("rentalForm").addEventListener("submit", e => { e.preventDefault(); generateQR(); });
+  $("resetBtn").addEventListener("click", () => { $("rentalForm").reset(); $("qrcode").innerHTML = '<div class="empty-qr">填寫資料後按下<br><b>產生加密 QR Code</b></div>'; $("jsonBox").textContent=""; $("toast").classList.remove("show"); $("invoiceBox").classList.remove("show"); updatePrice(); });
+  $("toggleJsonBtn").addEventListener("click", () => $("jsonBox").classList.toggle("show"));
   updatePrice();
 </script>
 </body>
