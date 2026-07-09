@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>無人機租借 QR Code 產生器</title>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
   <style>
     :root{
       --bg1:#f8f4ec;
@@ -21,7 +23,9 @@
       --shadow: 0 24px 70px rgba(75, 66, 48, .16);
       --radius:28px;
     }
+
     *{box-sizing:border-box}
+
     body{
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC",sans-serif;
@@ -33,7 +37,9 @@
       min-height:100vh;
       padding:34px 16px 60px;
     }
+
     .wrap{max-width:1180px;margin:0 auto}
+
     .hero{
       display:grid;
       grid-template-columns:1fr;
@@ -41,6 +47,7 @@
       align-items:stretch;
       margin-bottom:22px;
     }
+
     .glass{
       background:var(--card);
       border:1px solid rgba(255,255,255,.7);
@@ -48,82 +55,308 @@
       backdrop-filter:blur(16px);
       border-radius:var(--radius);
     }
+
     .headline{padding:34px}
+
     .eyebrow{
-      display:inline-flex;gap:8px;align-items:center;
-      padding:8px 13px;border-radius:999px;
-      background:rgba(123,143,104,.14);color:#566a48;
-      font-size:13px;font-weight:700;letter-spacing:.08em;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:8px 13px;
+      border-radius:999px;
+      background:rgba(123,143,104,.14);
+      color:#566a48;
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:.08em;
     }
-    h1{font-size:42px;line-height:1.15;margin:18px 0 12px;letter-spacing:-.04em}
-    .sub{font-size:16px;line-height:1.8;color:var(--muted);max-width:620px}
-    .price-card{padding:28px;display:flex;flex-direction:column;justify-content:space-between;min-height:260px}
-    .price-label{font-size:14px;color:var(--muted);font-weight:700;letter-spacing:.08em}
-    .amount{font-size:54px;font-weight:900;letter-spacing:-.04em;margin:10px 0;color:#384431}
-    .amount small{font-size:20px;color:var(--muted);font-weight:700}
-    .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
-    .chip{padding:9px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:13px;color:#686356}
-    .main{display:grid;grid-template-columns:1fr 380px;gap:22px;align-items:start}
+
+    h1{
+      font-size:42px;
+      line-height:1.15;
+      margin:18px 0 12px;
+      letter-spacing:-.04em;
+    }
+
+    .sub{
+      font-size:16px;
+      line-height:1.8;
+      color:var(--muted);
+      max-width:620px;
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .chip{
+      padding:9px 12px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid var(--line);
+      font-size:13px;
+      color:#686356;
+    }
+
+    .main{
+      display:grid;
+      grid-template-columns:1fr 380px;
+      gap:22px;
+      align-items:start;
+    }
+
     form{padding:28px}
-    .section-title{font-size:20px;font-weight:900;margin:0 0 18px;display:flex;align-items:center;gap:10px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
-    label{font-size:14px;font-weight:800;color:#4c5048}
+
+    .section-title{
+      font-size:20px;
+      font-weight:900;
+      margin:0 0 18px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-bottom:16px;
+    }
+
+    label{
+      font-size:14px;
+      font-weight:800;
+      color:#4c5048;
+    }
+
     input,select,textarea{
-      width:100%;border:1px solid var(--line);background:rgba(255,255,255,.78);
-      border-radius:18px;padding:14px 15px;font-size:16px;color:var(--text);outline:none;
-      transition:.2s;border-bottom-width:2px;
+      width:100%;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.78);
+      border-radius:18px;
+      padding:14px 15px;
+      font-size:16px;
+      color:var(--text);
+      outline:none;
+      transition:.2s;
+      border-bottom-width:2px;
     }
-    input:focus,select:focus,textarea:focus{border-color:rgba(123,143,104,.7);box-shadow:0 0 0 4px rgba(123,143,104,.12)}
-    textarea{min-height:92px;resize:vertical}
-    .radio-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    input:focus,select:focus,textarea:focus{
+      border-color:rgba(123,143,104,.7);
+      box-shadow:0 0 0 4px rgba(123,143,104,.12);
+    }
+
+    textarea{
+      min-height:92px;
+      resize:vertical;
+    }
+
+    .radio-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
     .option{
-      border:1px solid var(--line);background:rgba(255,255,255,.68);border-radius:20px;padding:14px;cursor:pointer;
-      display:flex;gap:10px;align-items:flex-start;transition:.2s;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.68);
+      border-radius:20px;
+      padding:14px;
+      cursor:pointer;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      transition:.2s;
     }
-    .option:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(75,66,48,.08)}
-    .option input{width:auto;margin-top:3px}
-    .option strong{display:block;font-size:15px}.option span{font-size:13px;color:var(--muted)}
-    .invoice-box{display:none;padding:16px;border:1px dashed rgba(176,139,99,.55);border-radius:22px;background:rgba(176,139,99,.08);margin-bottom:16px}
+
+    .option:hover{
+      transform:translateY(-1px);
+      box-shadow:0 10px 24px rgba(75,66,48,.08);
+    }
+
+    .option input{
+      width:auto;
+      margin-top:3px;
+    }
+
+    .option strong{
+      display:block;
+      font-size:15px;
+    }
+
+    .option span{
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .invoice-box{
+      display:none;
+      padding:16px;
+      border:1px dashed rgba(176,139,99,.55);
+      border-radius:22px;
+      background:rgba(176,139,99,.08);
+      margin-bottom:16px;
+    }
+
     .invoice-box.show{display:block}
-    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
-    button{
-      border:0;border-radius:18px;padding:14px 18px;font-size:16px;font-weight:900;cursor:pointer;transition:.2s;
+
+    .actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:12px;
     }
-    .primary{background:linear-gradient(135deg,#667a56,#9b805d);color:white;box-shadow:0 14px 26px rgba(86,106,72,.22)}
-    .secondary{background:#fff;color:#566a48;border:1px solid var(--line)}
+
+    button{
+      border:0;
+      border-radius:18px;
+      padding:14px 18px;
+      font-size:16px;
+      font-weight:900;
+      cursor:pointer;
+      transition:.2s;
+    }
+
+    .primary{
+      background:linear-gradient(135deg,#667a56,#9b805d);
+      color:white;
+      box-shadow:0 14px 26px rgba(86,106,72,.22);
+    }
+
+    .secondary{
+      background:#fff;
+      color:#566a48;
+      border:1px solid var(--line);
+    }
+
     button:hover{transform:translateY(-2px)}
-    .side{position:sticky;top:20px;padding:22px}
-    .summary{background:var(--card-solid);border:1px solid var(--line);border-radius:24px;padding:18px;margin-bottom:16px}
-    .row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #f0ebe2;color:#666055;font-size:14px}
-    .row:last-child{border-bottom:0}.row b{color:var(--text)}
-    .total{font-size:28px;font-weight:950;color:#384431}
+
+    .side{
+      position:sticky;
+      top:20px;
+      padding:22px;
+    }
+
+    .summary{
+      background:var(--card-solid);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:18px;
+      margin-bottom:16px;
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      padding:10px 0;
+      border-bottom:1px solid #f0ebe2;
+      color:#666055;
+      font-size:14px;
+    }
+
+    .row:last-child{border-bottom:0}
+
+    .row b{color:var(--text)}
+
+    .total{
+      font-size:28px;
+      font-weight:950;
+      color:#384431;
+    }
+
     #qrcode{
-  display:flex;
-  justify-content:center;
-  padding:14px;
-  background:white;
-  border-radius:24px;
-  border:1px solid var(--line);
-  min-height:190px;
-  align-items:center;
-}
-    .empty-qr{text-align:center;color:var(--muted);line-height:1.7;font-size:14px;padding:30px}
-    .notice{font-size:13px;line-height:1.7;color:var(--muted);margin-top:14px}
-    .json-box{display:none;margin-top:16px;background:#2f332f;color:#f8f4ec;border-radius:18px;padding:14px;white-space:pre-wrap;word-break:break-all;font-size:12px;line-height:1.6;max-height:220px;overflow:auto}
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:14px;
+      background:white;
+      border-radius:24px;
+      border:1px solid var(--line);
+      min-height:190px;
+      overflow:hidden;
+    }
+
+    #qrcode img,
+    #qrcode canvas{
+      width:150px !important;
+      height:150px !important;
+      display:block;
+    }
+
+    .empty-qr{
+      text-align:center;
+      color:var(--muted);
+      line-height:1.7;
+      font-size:14px;
+      padding:30px;
+    }
+
+    .notice{
+      font-size:13px;
+      line-height:1.7;
+      color:var(--muted);
+      margin-top:14px;
+    }
+
+    .json-box{
+      display:none;
+      margin-top:16px;
+      background:#2f332f;
+      color:#f8f4ec;
+      border-radius:18px;
+      padding:14px;
+      white-space:pre-wrap;
+      word-break:break-all;
+      font-size:12px;
+      line-height:1.6;
+      max-height:220px;
+      overflow:auto;
+    }
+
     .json-box.show{display:block}
-    .toast{display:none;margin-top:14px;padding:12px 14px;border-radius:16px;background:rgba(123,143,104,.14);color:#566a48;font-weight:800;font-size:14px}
+
+    .toast{
+      display:none;
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(123,143,104,.14);
+      color:#566a48;
+      font-weight:800;
+      font-size:14px;
+    }
+
     .toast.show{display:block}
-    @media(max-width:900px){.hero,.main{grid-template-columns:1fr}.side{position:static}.grid{grid-template-columns:1fr}h1{font-size:34px}.amount{font-size:44px}}
+
+    @media(max-width:900px){
+      .hero,.main{grid-template-columns:1fr}
+      .side{position:static}
+      .grid{grid-template-columns:1fr}
+      h1{font-size:34px}
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <section class="hero">
       <div class="headline glass">
         <div class="eyebrow">DRONE RENTAL QR SYSTEM</div>
         <h1>無人機租借<br>預約 QR Code 產生器</h1>
-        <p class="sub">填寫租借者資料後，系統會即時計算租借費用，並產生加密後的 JSON QR Code，供內部掃描頁解密確認。</p>
+        <p class="sub">
+          填寫租借者資料後，系統會即時計算租借費用，並產生加密後的 QR Code，供內部掃描頁解密確認。
+        </p>
         <div class="chips">
           <div class="chip">含 2 顆電池</div>
           <div class="chip">每時段 3 小時</div>
@@ -136,28 +369,132 @@
     <section class="main">
       <form class="glass" id="rentalForm">
         <h2 class="section-title">📝 租借預約申請</h2>
-        <div class="grid">
-          <div class="field"><label>租借者姓名</label><input id="name" required placeholder="例如：王小明"></div>
-          <div class="field"><label>聯絡電話</label><input id="phone" required placeholder="例如：0912345678" inputmode="tel"></div>
-          <div class="field"><label>預計租借日期</label><input id="date" required type="date"></div>
-          <div class="field"><label>預計時段</label><select id="slot" required><option value="上午場 09:00-12:00">上午場 09:00-12:00</option><option value="下午場 13:00-16:00">下午場 13:00-16:00</option></select></div>
-        </div>
-
-        <div class="field"><label>租借機型</label><select id="model" required><option value="mavic2">一般機型 Mavic 2｜$2,000</option><option value="plant_basic">植保機 15~25kg 基本級｜$3,500</option><option value="plant_advanced">植保機 15~25kg 高級組｜$3,500</option></select></div>
-
-        <div class="field" id="studentDiscountField"><label>是否為本中心學員優惠</label><div class="radio-row"><label class="option"><input type="radio" name="student" value="no" checked><div><strong>否，一般價格</strong><span>依原價計算</span></div></label><label class="option"><input type="radio" name="student" value="yes"><div><strong>是，套用優惠</strong><span>基本級 6 折，高級組 8 折</span></div></label></div></div>
 
         <div class="grid">
-          <div class="field"><label>加租電池數</label><select id="battery"><option value="0">0 顆</option><option value="1">1 顆</option><option value="2">2 顆</option><option value="3">3 顆</option><option value="4">4 顆</option><option value="5">5 顆</option><option value="6">6 顆</option></select></div>
-          <div class="field"><label>租借用途</label><select id="purpose" required><option value="考試用">考試用</option><option value="練習用">練習用</option><option value="其他">其他</option></select></div>
+          <div class="field">
+            <label>租借者姓名</label>
+            <input id="name" required placeholder="例如：王小明">
+          </div>
+
+          <div class="field">
+            <label>聯絡電話</label>
+            <input id="phone" required placeholder="例如：0912345678" inputmode="tel">
+          </div>
+
+          <div class="field">
+            <label>預計租借日期</label>
+            <input id="date" required type="date">
+          </div>
+
+          <div class="field">
+            <label>預計時段</label>
+            <select id="slot" required>
+              <option value="上午場 09:00-12:00">上午場 09:00-12:00</option>
+              <option value="下午場 13:00-16:00">下午場 13:00-16:00</option>
+            </select>
+          </div>
         </div>
 
-        <div class="field"><label>備註 / 其他用途說明</label><textarea id="note" placeholder="例如：預計抵達時間、陪同人員約定事項、其他需求"></textarea></div>
+        <div class="field">
+          <label>租借機型</label>
+          <select id="model" required>
+            <option value="mavic2">一般機型 Mavic 2｜$2,000</option>
+            <option value="plant_basic">植保機 15~25kg 基本級｜$3,500</option>
+            <option value="plant_advanced">植保機 15~25kg 高級組｜$3,500</option>
+          </select>
+        </div>
 
-        <div class="field"><label>是否需要發票抬頭 / 統編</label><div class="radio-row"><label class="option"><input type="radio" name="invoice" value="no" checked><div><strong>不需要</strong><span>不收集發票資料</span></div></label><label class="option"><input type="radio" name="invoice" value="yes"><div><strong>需要</strong><span>填寫抬頭與統編</span></div></label></div></div>
-        <div class="invoice-box" id="invoiceBox"><div class="grid"><div class="field"><label>發票抬頭</label><input id="invoiceTitle" placeholder="公司 / 單位名稱"></div><div class="field"><label>統一編號</label><input id="taxId" placeholder="8 碼統編" inputmode="numeric" maxlength="8"></div></div></div>
+        <div class="field" id="studentDiscountField">
+          <label>是否為本中心學員優惠</label>
+          <div class="radio-row">
+            <label class="option">
+              <input type="radio" name="student" value="no" checked>
+              <div>
+                <strong>否，一般價格</strong>
+                <span>依原價計算</span>
+              </div>
+            </label>
 
-        <div class="actions"><button class="primary" type="submit">產生加密 QR Code</button><button class="secondary" type="button" id="resetBtn">清空表單</button><button class="secondary" type="button" id="toggleJsonBtn">顯示 / 隱藏密文</button></div>
+            <label class="option">
+              <input type="radio" name="student" value="yes">
+              <div>
+                <strong>是，套用優惠</strong>
+                <span>基本級 6 折，高級組 8 折</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label>加租電池數</label>
+            <select id="battery">
+              <option value="0">0 顆</option>
+              <option value="1">1 顆</option>
+              <option value="2">2 顆</option>
+              <option value="3">3 顆</option>
+              <option value="4">4 顆</option>
+              <option value="5">5 顆</option>
+              <option value="6">6 顆</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>租借用途</label>
+            <select id="purpose" required>
+              <option value="考試用">考試用</option>
+              <option value="練習用">練習用</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>備註 / 其他用途說明</label>
+          <textarea id="note" placeholder="例如：預計抵達時間、陪同人員約定事項、其他需求"></textarea>
+        </div>
+
+        <div class="field">
+          <label>是否需要發票抬頭 / 統編</label>
+          <div class="radio-row">
+            <label class="option">
+              <input type="radio" name="invoice" value="no" checked>
+              <div>
+                <strong>不需要</strong>
+                <span>不收集發票資料</span>
+              </div>
+            </label>
+
+            <label class="option">
+              <input type="radio" name="invoice" value="yes">
+              <div>
+                <strong>需要</strong>
+                <span>填寫抬頭與統編</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="invoice-box" id="invoiceBox">
+          <div class="grid">
+            <div class="field">
+              <label>發票抬頭</label>
+              <input id="invoiceTitle" placeholder="公司 / 單位名稱">
+            </div>
+
+            <div class="field">
+              <label>統一編號</label>
+              <input id="taxId" placeholder="8 碼統編" inputmode="numeric" maxlength="8">
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" type="submit">產生加密 QR Code</button>
+          <button class="secondary" type="button" id="resetBtn">清空表單</button>
+          <button class="secondary" type="button" id="toggleJsonBtn">顯示 / 隱藏密文</button>
+        </div>
+
         <div class="toast" id="toast">QR Code 已產生。</div>
       </form>
 
@@ -169,118 +506,231 @@
           <div class="row"><span>電池單價</span><b id="batteryUnit">NT$ 200 / 顆</b></div>
           <div class="row"><span>合計</span><b class="total" id="totalPrice">NT$ 2,000</b></div>
         </div>
-        <div id="qrcode"><div class="empty-qr">填寫資料後按下<br><b>產生加密 QR Code</b></div></div>
-        <div class="notice">QR Code 內容為加密 JSON。請妥善保管下方程式中的密鑰，掃描頁需使用同一把密鑰才能解密。</div>
+
+        <div id="qrcode">
+          <div class="empty-qr">
+            填寫資料後按下<br>
+            <b>產生加密 QR Code</b>
+          </div>
+        </div>
+
+        <div class="notice">
+          QR Code 內容為加密資料。掃描頁必須使用同一把密鑰才能解密。
+        </div>
+
         <pre class="json-box" id="jsonBox"></pre>
       </aside>
     </section>
   </div>
 
 <script>
-  // ⚠️ 正式使用前，請把這串改成你自己的長密鑰；掃描頁也必須使用同一串。
   const SECRET_KEY = "CHANGE_THIS_TO_YOUR_OWN_SECRET_KEY_2026";
 
   const PRICES = {
-    mavic2: { label: "一般機型 Mavic 2", base: 2000, battery: 200, discountBase: null },
-    plant_basic: { label: "植保機 15~25kg 基本級", base: 3500, battery: 650, discountBase: 2100 },
-    plant_advanced: { label: "植保機 15~25kg 高級組", base: 3500, battery: 650, discountBase: 2800 }
+    mavic2: {
+      label: "一般機型 Mavic 2",
+      base: 2000,
+      battery: 200,
+      discountBase: null
+    },
+    plant_basic: {
+      label: "植保機 15~25kg 基本級",
+      base: 3500,
+      battery: 650,
+      discountBase: 2100
+    },
+    plant_advanced: {
+      label: "植保機 15~25kg 高級組",
+      base: 3500,
+      battery: 650,
+      discountBase: 2800
+    }
   };
 
   const $ = id => document.getElementById(id);
+
   const fmt = n => "NT$ " + Number(n || 0).toLocaleString("zh-TW");
-  const getRadio = name => document.querySelector(`input[name="${name}"]:checked`).value;
+
+  function getRadio(name){
+    const checked = document.querySelector(`input[name="${name}"]:checked`);
+    return checked ? checked.value : "";
+  }
 
   function getPriceDetail(){
     const modelKey = $("model").value;
     const item = PRICES[modelKey];
+
+    if(modelKey === "mavic2"){
+      document.querySelector('input[name="student"][value="no"]').checked = true;
+    }
+
     const isStudent = getRadio("student") === "yes";
     const batteryCount = Number($("battery").value || 0);
     const base = isStudent && item.discountBase ? item.discountBase : item.base;
     const batteryTotal = batteryCount * item.battery;
-    return { modelKey, item, isStudent, batteryCount, base, batteryTotal, total: base + batteryTotal };
+
+    return {
+      modelKey,
+      item,
+      isStudent,
+      batteryCount,
+      base,
+      batteryTotal,
+      total: base + batteryTotal
+    };
   }
 
   function updatePrice(){
     const p = getPriceDetail();
+
     $("basePrice").textContent = fmt(p.base);
     $("batteryPrice").textContent = fmt(p.batteryTotal);
     $("batteryUnit").textContent = `${fmt(p.item.battery)} / 顆`;
     $("totalPrice").textContent = fmt(p.total);
+
     $("studentDiscountField").style.display = p.modelKey === "mavic2" ? "none" : "flex";
-    if(p.modelKey === "mavic2") document.querySelector('input[name="student"][value="no"]').checked = true;
   }
 
-  function buildPayload(){
+  function buildCompactPayload(){
     const p = getPriceDetail();
     const needInvoice = getRadio("invoice") === "yes";
+
     return {
-      version: 1,
-      orderId: "DR" + new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0,14),
-      createdAt: new Date().toISOString(),
-      renter: {
-        name: $("name").value.trim(),
-        phone: $("phone").value.trim()
-      },
-      rental: {
-        date: $("date").value,
-        slot: $("slot").value,
-        model: p.item.label,
-        modelKey: p.modelKey,
-        studentDiscount: p.isStudent,
-        extraBatteryCount: p.batteryCount,
-        purpose: $("purpose").value,
-        note: $("note").value.trim()
-      },
-      invoice: {
-        required: needInvoice,
-        title: needInvoice ? $("invoiceTitle").value.trim() : "",
-        taxId: needInvoice ? $("taxId").value.trim() : ""
-      },
-      price: {
-        basePrice: p.base,
-        extraBatteryUnitPrice: p.item.battery,
-        extraBatteryTotal: p.batteryTotal,
-        total: p.total
-      }
+      v: 1,
+      id: "DR" + Date.now(),
+      at: new Date().toISOString(),
+
+      n: $("name").value.trim(),
+      ph: $("phone").value.trim(),
+
+      d: $("date").value,
+      s: $("slot").value,
+
+      mk: p.modelKey,
+      m: p.item.label,
+      st: p.isStudent ? 1 : 0,
+      b: p.batteryCount,
+      u: $("purpose").value,
+      nt: $("note").value.trim(),
+
+      inv: needInvoice ? 1 : 0,
+      it: needInvoice ? $("invoiceTitle").value.trim() : "",
+      tax: needInvoice ? $("taxId").value.trim() : "",
+
+      bp: p.base,
+      bu: p.item.battery,
+      bt: p.batteryTotal,
+      t: p.total
     };
   }
 
   function validatePayload(payload){
-    if(!payload.renter.name || !payload.renter.phone || !payload.rental.date) return "請填寫姓名、電話與租借日期。";
-    if(payload.invoice.required){
-      if(!payload.invoice.title || !payload.invoice.taxId) return "需要發票時，請填寫發票抬頭與統一編號。";
-      if(!/^\d{8}$/.test(payload.invoice.taxId)) return "統一編號需為 8 碼數字。";
+    if(!payload.n || !payload.ph || !payload.d){
+      return "請填寫姓名、電話與租借日期。";
     }
+
+    if(payload.inv === 1){
+      if(!payload.it || !payload.tax){
+        return "需要發票時，請填寫發票抬頭與統一編號。";
+      }
+
+      if(!/^\d{8}$/.test(payload.tax)){
+        return "統一編號需為 8 碼數字。";
+      }
+    }
+
     return "";
   }
 
-  function generateQR(){
-    const payload = buildPayload();
-    const err = validatePayload(payload);
-    if(err){ alert(err); return; }
-
-    const json = JSON.stringify(payload);
-    const encrypted = CryptoJS.AES.encrypt(json, SECRET_KEY).toString();
-    const qrContent = JSON.stringify({ type:"DRONE_RENTAL_ENCRYPTED_JSON", v:1, data: encrypted });
-
-    $("qrcode").innerHTML = "";
-    new QRCode($("qrcode"), { text: qrContent, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.M });
-    $("jsonBox").textContent = qrContent;
-    $("toast").classList.add("show");
+  function setQrPlaceholder(text){
+    $("qrcode").innerHTML = `
+      <div class="empty-qr">
+        ${text}
+      </div>
+    `;
   }
 
-  document.querySelectorAll("input,select,textarea").forEach(el=>{
-    el.addEventListener("input", updatePrice);
+  function generateQR(){
+    if(typeof QRCode === "undefined"){
+      alert("QRCode 套件載入失敗，請確認網路連線或 CDN 是否被阻擋。");
+      return;
+    }
+
+    if(typeof CryptoJS === "undefined"){
+      alert("CryptoJS 套件載入失敗，請確認網路連線或 CDN 是否被阻擋。");
+      return;
+    }
+
+    const payload = buildCompactPayload();
+    const err = validatePayload(payload);
+
+    if(err){
+      alert(err);
+      return;
+    }
+
+    try{
+      const json = JSON.stringify(payload);
+      const encrypted = CryptoJS.AES.encrypt(json, SECRET_KEY).toString();
+
+      const qrContent = JSON.stringify({
+        type: "DRONE_RENTAL",
+        v: 1,
+        data: encrypted
+      });
+
+      $("qrcode").innerHTML = "";
+
+      new QRCode($("qrcode"), {
+        text: qrContent,
+        width: 150,
+        height: 150,
+        colorDark: "#2f332f",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.L
+      });
+
+      $("jsonBox").textContent = qrContent;
+      $("toast").classList.add("show");
+
+    }catch(error){
+      console.error(error);
+      setQrPlaceholder("QR Code 產生失敗<br>資料可能過長，請縮短備註內容。");
+      alert("QR Code 產生失敗，請縮短備註內容後再試。");
+    }
+  }
+
+  document.querySelectorAll("input, select, textarea").forEach(el => {
+    el.addEventListener("input", () => {
+      updatePrice();
+    });
+
     el.addEventListener("change", () => {
       updatePrice();
       $("invoiceBox").classList.toggle("show", getRadio("invoice") === "yes");
     });
   });
 
-  $("rentalForm").addEventListener("submit", e => { e.preventDefault(); generateQR(); });
-  $("resetBtn").addEventListener("click", () => { $("rentalForm").reset(); $("qrcode").innerHTML = '<div class="empty-qr">填寫資料後按下<br><b>產生加密 QR Code</b></div>'; $("jsonBox").textContent=""; $("toast").classList.remove("show"); $("invoiceBox").classList.remove("show"); updatePrice(); });
-  $("toggleJsonBtn").addEventListener("click", () => $("jsonBox").classList.toggle("show"));
+  $("rentalForm").addEventListener("submit", e => {
+    e.preventDefault();
+    generateQR();
+  });
+
+  $("resetBtn").addEventListener("click", () => {
+    $("rentalForm").reset();
+    setQrPlaceholder("填寫資料後按下<br><b>產生加密 QR Code</b>");
+    $("jsonBox").textContent = "";
+    $("toast").classList.remove("show");
+    $("invoiceBox").classList.remove("show");
+    updatePrice();
+  });
+
+  $("toggleJsonBtn").addEventListener("click", () => {
+    $("jsonBox").classList.toggle("show");
+  });
+
   updatePrice();
 </script>
+
 </body>
 </html>
